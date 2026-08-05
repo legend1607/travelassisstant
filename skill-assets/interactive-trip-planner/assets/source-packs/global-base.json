@@ -1,0 +1,187 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "global-base",
+  "name": "Global Base",
+  "version": "0.1.0",
+  "regions": ["global"],
+  "languageStrategy": {
+    "required": ["zh", "en", "destination-local"],
+    "localLanguageTags": ["destination-local"]
+  },
+  "sources": [
+    {
+      "id": "unesco-world-heritage-centre",
+      "name": "UNESCO World Heritage Centre",
+      "url": "https://whc.unesco.org/",
+      "kind": "official-institution",
+      "regions": ["global"],
+      "languages": ["en", "fr"],
+      "roles": ["official-fact", "local-context"],
+      "access": {
+        "class": "A",
+        "searchMethod": "公开名录与 site:whc.unesco.org + 地点正式名称",
+        "loginRequired": false,
+        "toolDependency": null,
+        "agentAccess": "public-web",
+        "fallback": ["目的地文化主管机构与遗产管理方官网"]
+      },
+      "factBoundary": {
+        "canSupport": ["遗产身份", "官方范围", "保护背景"],
+        "cannotProve": ["当天开放", "票务", "现场体验", "路线可行性"]
+      },
+      "lastVerified": "2026-07-31",
+      "limitations": ["只覆盖列入名录的文化与自然遗产"]
+    },
+    {
+      "id": "openstreetmap",
+      "name": "OpenStreetMap",
+      "url": "https://www.openstreetmap.org/",
+      "kind": "map-platform",
+      "regions": ["global"],
+      "languages": ["multi"],
+      "roles": ["spatial-search"],
+      "access": {
+        "class": "A",
+        "searchMethod": "公开地图按正式名称、地址与附近类别搜索",
+        "loginRequired": false,
+        "toolDependency": null,
+        "agentAccess": "public-web",
+        "fallback": ["目的地官方地图或另一独立公开地图"]
+      },
+      "factBoundary": {
+        "canSupport": ["名称", "坐标", "道路与空间关系线索"],
+        "cannotProve": ["营业", "票务", "体验质量", "适合模板"]
+      },
+      "lastVerified": "2026-07-31",
+      "limitations": ["社区维护数据的新鲜度和完整度因地区而异"]
+    },
+    {
+      "id": "eater-city-guides",
+      "name": "Eater City Guides",
+      "url": "https://www.eater.com/maps",
+      "kind": "local-editorial",
+      "subtype": "food-drink",
+      "coverageRegions": ["Eater 已设城市编辑网络"],
+      "beats": ["restaurants", "bars", "food culture"],
+      "regions": ["selected-global-cities"],
+      "languages": ["en"],
+      "roles": ["editorial-discovery", "local-context"],
+      "access": {
+        "class": "B",
+        "searchMethod": "公开城市地图或 site:eater.com + 城市 + 主题词",
+        "loginRequired": false,
+        "toolDependency": null,
+        "agentAccess": "conditional-public-web",
+        "fallback": ["目的地具名餐饮编辑源", "经营方官网与菜单"]
+      },
+      "factBoundary": {
+        "canSupport": ["餐饮候选", "编辑视角", "地方饮食语境"],
+        "cannotProve": ["实时营业", "当前菜单", "订位成功", "交通与安全"]
+      },
+      "lastVerified": "2026-07-31",
+      "limitations": ["仅覆盖有编辑版的城市，文章更新时间不等于商户状态"]
+    }
+  ],
+  "queryIntents": [
+    {
+      "id": "date-bound-events",
+      "terms": {"zh": ["节庆", "活动日历"], "en": ["festival", "events calendar"], "local": ["当地语言节庆词", "当地语言活动日历词"]},
+      "sourceRoles": ["official-fact", "editorial-discovery"],
+      "queryTemplates": {
+        "zh": "{destination} {yearMonth} 节庆 活动 官方",
+        "en": "{destination} {yearMonth} festival events official",
+        "local": "{destination} {yearMonth} {local:events-calendar} official"
+      }
+    },
+    {
+      "id": "local-food-structure",
+      "terms": {"zh": ["地方菜", "家庭菜"], "en": ["local dishes", "home cooking"], "local": ["当地语言地方菜词", "当地语言家庭菜词"]},
+      "sourceRoles": ["local-context", "editorial-discovery"],
+      "queryTemplates": {
+        "zh": "{destination} 地方菜 早餐 家庭菜",
+        "en": "{destination} local dishes breakfast home cooking",
+        "local": "{destination} {local:local-dishes} {local:municipal-market}"
+      }
+    },
+    {
+      "id": "seasonal-produce",
+      "terms": {"zh": ["时令水果", "当季物产"], "en": ["seasonal produce", "harvest"], "local": ["当地语言时令词", "当地语言收获词"]},
+      "sourceRoles": ["local-context", "official-fact"],
+      "queryTemplates": {
+        "zh": "{destination} {yearMonth} 时令水果 当季物产",
+        "en": "{destination} {yearMonth} seasonal produce harvest",
+        "local": "{destination} {yearMonth} {local:seasonal-produce}"
+      }
+    },
+    {
+      "id": "markets-traditional-commerce",
+      "terms": {"zh": ["早市", "传统市场"], "en": ["market", "traditional commerce"], "local": ["当地语言市场词", "当地语言周市词"]},
+      "sourceRoles": ["local-context", "spatial-search"],
+      "queryTemplates": {
+        "zh": "{destination} 早市 传统市场 营业日",
+        "en": "{destination} market traditional commerce day hours",
+        "local": "{destination} {local:municipal-market}"
+      }
+    },
+    {
+      "id": "community-third-places",
+      "terms": {"zh": ["社区空间", "居民周末"], "en": ["community space", "third place"], "local": ["当地语言社区词", "当地语言居民周末词"]},
+      "sourceRoles": ["local-context", "editorial-discovery"],
+      "queryTemplates": {
+        "zh": "{destination} 社区空间 居民周末 公共生活",
+        "en": "{destination} community space third place local weekend",
+        "local": "{destination} {local:neighborhood-life}"
+      }
+    },
+    {
+      "id": "arts-music-nightlife",
+      "terms": {"zh": ["展览", "现场音乐", "夜生活"], "en": ["exhibition", "live music", "nightlife"], "local": ["当地语言展览词", "当地语言现场音乐词"]},
+      "sourceRoles": ["official-fact", "editorial-discovery"],
+      "queryTemplates": {
+        "zh": "{destination} {yearMonth} 展览 现场音乐 夜生活",
+        "en": "{destination} {yearMonth} exhibition live music nightlife",
+        "local": "{destination} {yearMonth} {local:live-music}"
+      }
+    },
+    {
+      "id": "craft-industry-migration",
+      "terms": {"zh": ["手艺", "产业史", "迁移史"], "en": ["craft", "industry history", "migration history"], "local": ["当地语言手艺词", "当地语言产业史词"]},
+      "sourceRoles": ["local-context", "official-fact"],
+      "queryTemplates": {
+        "zh": "{destination} 手艺 产业史 迁移史 参观",
+        "en": "{destination} craft industry migration history visit",
+        "local": "{destination} {local:local-crafts}"
+      }
+    },
+    {
+      "id": "family-low-energy-rain-accessibility",
+      "terms": {"zh": ["雨天", "低体力", "无障碍"], "en": ["rainy day", "low walking", "accessible"], "local": ["当地语言雨天词", "当地语言无障碍词"]},
+      "sourceRoles": ["official-fact", "spatial-search"],
+      "queryTemplates": {
+        "zh": "{destination} 雨天 低体力 无障碍 室内",
+        "en": "{destination} rainy day low walking accessible indoor",
+        "local": "{destination} {local:rainy-day}"
+      }
+    },
+    {
+      "id": "current-disruptions-risks",
+      "terms": {"zh": ["闭馆", "施工", "罢工"], "en": ["closed", "construction", "strike"], "local": ["当地语言闭馆词", "当地语言交通中断词"]},
+      "sourceRoles": ["official-fact"],
+      "queryTemplates": {
+        "zh": "{destination} {yearMonth} 闭馆 施工 交通管制 官方",
+        "en": "{destination} {yearMonth} closed construction strike advisory official",
+        "local": "{destination} {yearMonth} {local:current-notices} official"
+      }
+    },
+    {
+      "id": "taste-specific-discovery",
+      "terms": {"zh": ["模板偏好"], "en": ["taste-specific"], "local": ["当地语言类别词"]},
+      "sourceRoles": ["editorial-discovery", "community-experience", "spatial-search"],
+      "queryTemplates": {
+        "zh": "{destination} {tasteTerms} 街区",
+        "en": "{destination} {tasteTerms} neighborhood",
+        "local": "{destination} {local:independent-neighborhood} {tasteTerms}"
+      }
+    }
+  ]
+}

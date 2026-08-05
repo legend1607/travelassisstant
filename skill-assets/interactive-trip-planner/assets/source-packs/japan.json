@@ -1,0 +1,148 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "japan",
+  "name": "日本",
+  "version": "0.1.0",
+  "regions": ["JP"],
+  "inherits": ["global-base"],
+  "languageStrategy": {
+    "required": ["zh", "en", "destination-local"],
+    "localLanguageTags": ["ja"]
+  },
+  "sources": [
+    {
+      "id": "jnto-local-specialities",
+      "name": "Japan National Tourism Organization Local Specialities",
+      "url": "https://www.japan.travel/en/local-specialities/local-foods/",
+      "kind": "official-institution",
+      "regions": ["JP"],
+      "languages": ["ja", "en"],
+      "roles": ["official-fact", "local-context"],
+      "access": {
+        "class": "A",
+        "searchMethod": "公开地区专题或 site:japan.travel + 都道府县 + local food/festival",
+        "loginRequired": false,
+        "toolDependency": null,
+        "agentAccess": "public-web",
+        "fallback": ["都道府县或市町村官方观光网站", "活动主办方官网"]
+      },
+      "factBoundary": {
+        "canSupport": ["地方菜与物产背景", "官方观光语境", "地区名称"],
+        "cannotProve": ["具体店铺当天营业", "当前菜单", "活动当日执行"]
+      },
+      "lastVerified": "2026-07-31",
+      "limitations": ["具体营业、预约与活动日期必须回到经营方或主办方"]
+    },
+    {
+      "id": "openstreetmap-japan",
+      "name": "OpenStreetMap Japan coverage",
+      "url": "https://www.openstreetmap.org/",
+      "kind": "map-platform",
+      "regions": ["JP"],
+      "languages": ["ja", "multi"],
+      "roles": ["spatial-search"],
+      "access": {
+        "class": "A",
+        "searchMethod": "按日文正式名称、地址和附近类别使用公开地图搜索",
+        "loginRequired": false,
+        "toolDependency": null,
+        "agentAccess": "public-web",
+        "fallback": ["日本地方政府公开地图", "另一独立公开地图"]
+      },
+      "factBoundary": {
+        "canSupport": ["名称", "坐标", "道路与附近关系线索"],
+        "cannotProve": ["营业", "票务", "服务质量", "真实公共交通耗时"]
+      },
+      "lastVerified": "2026-07-31",
+      "limitations": ["POI 更新速度因地区而异，复杂交通需运营方复核"]
+    },
+    {
+      "id": "time-out-tokyo",
+      "name": "Time Out Tokyo",
+      "url": "https://www.timeout.com/tokyo",
+      "kind": "local-editorial",
+      "subtype": "city-life-culture",
+      "coverageRegions": ["Tokyo and selected Japan destinations"],
+      "beats": ["city life", "culture", "food", "events"],
+      "regions": ["JP"],
+      "languages": ["en", "ja"],
+      "roles": ["editorial-discovery", "local-context"],
+      "access": {
+        "class": "A",
+        "searchMethod": "公开专题、活动页或 site:timeout.com/tokyo + 地点/月份/主题词",
+        "loginRequired": false,
+        "toolDependency": null,
+        "agentAccess": "public-web",
+        "fallback": ["都道府县官方活动日历", "经营方或主办方官网"]
+      },
+      "factBoundary": {
+        "canSupport": ["城市生活候选", "文化活动线索", "编辑语境"],
+        "cannotProve": ["实时营业", "余票", "交通运行", "安全"]
+      },
+      "lastVerified": "2026-07-31",
+      "limitations": ["东京覆盖最强，编辑文章需要按发布日期判断新鲜度"]
+    }
+  ],
+  "queryIntents": [
+    {
+      "id": "date-bound-events",
+      "terms": {"zh": ["节庆", "祭典"], "en": ["festival", "events calendar"], "local": ["祭り", "イベント", "行事"]},
+      "sourceRoles": ["official-fact", "editorial-discovery"],
+      "queryTemplates": {"zh": "{destination} {yearMonth} 节庆 祭典 官方", "en": "{destination} {yearMonth} festival official", "local": "{destination} {yearMonth} 祭り イベント 公式"}
+    },
+    {
+      "id": "local-food-structure",
+      "terms": {"zh": ["地方菜", "乡土料理"], "en": ["local dishes", "regional cuisine"], "local": ["郷土料理", "朝ごはん", "家庭料理"]},
+      "sourceRoles": ["local-context", "editorial-discovery"],
+      "queryTemplates": {"zh": "{destination} 地方菜 乡土料理 早餐", "en": "{destination} local dishes regional breakfast", "local": "{destination} 郷土料理 朝ごはん 家庭料理"}
+    },
+    {
+      "id": "seasonal-produce",
+      "terms": {"zh": ["时令", "当季物产"], "en": ["seasonal produce", "harvest"], "local": ["旬", "季節の果物", "収穫"]},
+      "sourceRoles": ["local-context", "official-fact"],
+      "queryTemplates": {"zh": "{destination} {yearMonth} 时令物产 水果", "en": "{destination} {yearMonth} seasonal produce", "local": "{destination} {yearMonth} 旬 季節の果物 収穫"}
+    },
+    {
+      "id": "markets-traditional-commerce",
+      "terms": {"zh": ["早市", "商店街"], "en": ["morning market", "shopping street"], "local": ["朝市", "商店街", "蚤の市"]},
+      "sourceRoles": ["local-context", "spatial-search"],
+      "queryTemplates": {"zh": "{destination} 早市 商店街 营业日", "en": "{destination} morning market shopping street hours", "local": "{destination} 朝市 商店街 蚤の市 開催日"}
+    },
+    {
+      "id": "community-third-places",
+      "terms": {"zh": ["社区空间", "公共浴场"], "en": ["community space", "sento"], "local": ["銭湯", "地域センター", "住民の週末"]},
+      "sourceRoles": ["local-context", "editorial-discovery"],
+      "queryTemplates": {"zh": "{destination} 社区空间 公共浴场 居民周末", "en": "{destination} community space sento local weekend", "local": "{destination} 銭湯 地域センター 住民の週末"}
+    },
+    {
+      "id": "arts-music-nightlife",
+      "terms": {"zh": ["展览", "现场音乐"], "en": ["exhibition", "live music"], "local": ["展覧会", "ライブ", "上映"]},
+      "sourceRoles": ["official-fact", "editorial-discovery"],
+      "queryTemplates": {"zh": "{destination} {yearMonth} 展览 现场音乐", "en": "{destination} {yearMonth} exhibition live music", "local": "{destination} {yearMonth} 展覧会 ライブ 上映"}
+    },
+    {
+      "id": "craft-industry-migration",
+      "terms": {"zh": ["传统手艺", "产业史"], "en": ["traditional craft", "industry history"], "local": ["伝統工芸", "産業史", "移民史"]},
+      "sourceRoles": ["local-context", "official-fact"],
+      "queryTemplates": {"zh": "{destination} 传统手艺 产业史 参观", "en": "{destination} traditional craft industry history visit", "local": "{destination} 伝統工芸 産業史 見学"}
+    },
+    {
+      "id": "family-low-energy-rain-accessibility",
+      "terms": {"zh": ["雨天", "低体力", "无障碍"], "en": ["rainy day", "accessible"], "local": ["雨の日", "バリアフリー", "子連れ"]},
+      "sourceRoles": ["official-fact", "spatial-search"],
+      "queryTemplates": {"zh": "{destination} 雨天 低体力 无障碍", "en": "{destination} rainy day low walking accessible", "local": "{destination} 雨の日 バリアフリー 子連れ"}
+    },
+    {
+      "id": "current-disruptions-risks",
+      "terms": {"zh": ["闭馆", "停运", "施工"], "en": ["closed", "service suspension"], "local": ["休館", "運休", "工事"]},
+      "sourceRoles": ["official-fact"],
+      "queryTemplates": {"zh": "{destination} {yearMonth} 闭馆 停运 施工", "en": "{destination} {yearMonth} closed service suspension advisory", "local": "{destination} {yearMonth} 休館 運休 工事 公式"}
+    },
+    {
+      "id": "taste-specific-discovery",
+      "terms": {"zh": ["街区", "手艺", "小店"], "en": ["neighborhood", "craft", "independent"], "local": ["町歩き", "手仕事", "個人店"]},
+      "sourceRoles": ["editorial-discovery", "community-experience", "spatial-search"],
+      "queryTemplates": {"zh": "{destination} {tasteTerms} 街区 小店", "en": "{destination} {tasteTerms} neighborhood independent", "local": "{destination} {tasteTerms} 町歩き 手仕事 個人店"}
+    }
+  ]
+}

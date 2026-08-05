@@ -1,0 +1,10 @@
+[
+  {
+    "id": "user",
+    "title": "User-provided information",
+    "type": "user",
+    "url": "",
+    "checkedDate": "",
+    "supports": "User constraints and preferences"
+  }
+]

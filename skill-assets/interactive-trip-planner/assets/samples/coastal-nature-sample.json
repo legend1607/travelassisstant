@@ -1,0 +1,38 @@
+{
+  "themeProfile": {
+    "id": "coastal-nature",
+    "purpose": "海岛 / 自然 / 潜水线",
+    "emphasize": ["sea-condition", "boat-transfer", "dive-rest", "weather-risk"],
+    "visualResearchPrompts": ["nautical chart", "local boat signage", "marine park map", "island resort materials"]
+  },
+  "pois": [
+    {
+      "id": "sample-dive-site",
+      "name": "Sample Reef",
+      "name_zh": "示例珊瑚礁",
+      "city": "Sample Island",
+      "area": "Marine Park",
+      "category": "nature",
+      "priority": "pending",
+      "coords": [-8.65, 115.22],
+      "note": "潜水/浮潜主题候选，是否进入主线取决于用户资质、海况和船期。",
+      "plan": "只在确认潜水兴趣、季节和潜水后飞行缓冲后排入路线。",
+      "tip": "复核潜店资质、海况、能见度、晕船风险和飞行前 18-24 小时不上飞机。",
+      "source": "sample",
+      "themeTags": ["coastal-dive"],
+      "reservationDifficulty": "unknown"
+    }
+  ],
+  "itinerary": [
+    {
+      "id": "day-1",
+      "date": "2026-01-01",
+      "title": "海况确认后的潜水/浮潜日",
+      "city": "Sample Island",
+      "summary": "这一天先留作海上活动窗口；天气不稳时切换为海边恢复日。",
+      "anchors": ["sample-dive-site"],
+      "routeStops": [{ "poiId": "sample-dive-site", "order": 1, "time": "08:00", "role": "conditional-anchor" }],
+      "candidates": []
+    }
+  ]
+}

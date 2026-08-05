@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "0.1.0",
+  "modelId": "city-craft-rhythm",
+  "discoveryPriorities": ["city-life-culture", "industry-specialist", "events-listing", "official-local-context"],
+  "verificationPriorities": ["official-fact", "operator", "spatial-search"],
+  "rankSignals": ["local-production-context", "neighborhood-continuity", "independent-expression", "time-worthiness"],
+  "guardrails": [
+    "榜单只用于发现，不直接决定优先级。",
+    "体验来源不能单独证明营业、票务、交通、安全或活动日期。",
+    "符合模板但破坏真实路线的地点降为候选。"
+  ]
+}

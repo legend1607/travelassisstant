@@ -1,0 +1,71 @@
+{
+  "name": "trip-guide-design-tokens",
+  "mood": ["destination-specific", "polished", "usable"],
+  "color": {
+    "background": "#f6f3ec",
+    "surface": "#ffffff",
+    "surfaceMuted": "#fbf8f0",
+    "text": "#17201d",
+    "muted": "#66716d",
+    "accent": "#1d5c4c",
+    "accentSoft": "rgba(29, 92, 76, 0.12)",
+    "route": "#1d5c4c",
+    "marker": "#277b8f",
+    "warning": "#a55235",
+    "line": "rgba(29, 58, 51, 0.18)"
+  },
+  "type": {
+    "fontFamily": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans SC\", sans-serif",
+    "title": { "size": "24px", "lineHeight": "1.18", "weight": 850 },
+    "section": { "size": "13px", "lineHeight": "1.35", "weight": 850 },
+    "cardTitle": { "size": "15px", "lineHeight": "1.35", "weight": 850 },
+    "body": { "size": "13px", "lineHeight": "1.5", "weight": 400 },
+    "meta": { "size": "12px", "lineHeight": "1.45", "weight": 400 },
+    "button": { "size": "12px", "lineHeight": "1.2", "weight": 750 },
+    "popup": { "size": "13px", "lineHeight": "1.45", "weight": 400 }
+  },
+  "spacing": {
+    "xs": "4px",
+    "sm": "8px",
+    "md": "12px",
+    "lg": "16px",
+    "xl": "22px"
+  },
+  "radius": {
+    "control": "7px",
+    "card": "8px",
+    "panel": "8px",
+    "pill": "999px"
+  },
+  "shadow": {
+    "card": "0 8px 20px rgba(23, 32, 29, 0.05)",
+    "panel": "0 24px 60px rgba(23, 32, 29, 0.18)",
+    "marker": "0 9px 18px rgba(0, 0, 0, 0.28)"
+  },
+  "component": {
+    "sidebarDensity": "compact",
+    "cardBorder": "1px solid var(--line)",
+    "buttonStyle": "quiet-outline",
+    "badgeStyle": "soft-pill",
+    "drawerStyle": "floating-panel"
+  },
+  "map": {
+    "markerShape": "circle",
+    "routeLine": "dashed",
+    "assignedMarkerLabel": "route-order",
+    "candidateMarkerLabel": "category-initial",
+    "draftMarkerLabel": "+",
+    "fitPadding": [30, 30]
+  },
+  "motion": {
+    "durationFast": "140ms",
+    "durationNormal": "220ms",
+    "easing": "ease-out"
+  },
+  "avoid": [
+    "generic-gradient-orbs",
+    "direct-flag-palette",
+    "oversized-sidebar-type",
+    "decorative-elements-that-hide-map-workflow"
+  ]
+}

@@ -1,0 +1,67 @@
+[
+  {
+    "id": "art-basel-paris-2026",
+    "title": "Art Basel Paris",
+    "url": "https://www.artbasel.com/Paris?lang=en",
+    "type": "official",
+    "role": "fact",
+    "language": "en",
+    "status": "confirmed",
+    "checkedAt": "2026-07-19",
+    "supports": ["event-dates", "venue"],
+    "recheckBefore": "2026-10-01",
+    "notes": "2026 年 10 月 23-25 日，Grand Palais。"
+  },
+  {
+    "id": "art-basel-paris-tickets-2026",
+    "title": "Art Basel Paris Tickets",
+    "url": "https://www.artbasel.com/paris/tickets?lang=en",
+    "type": "official",
+    "role": "visit",
+    "language": "en",
+    "status": "confirmed",
+    "checkedAt": "2026-07-19",
+    "supports": ["opening-hours", "tickets", "entry-rules"],
+    "recheckBefore": "2026-10-01",
+    "notes": "用于复核公众开放时段、票种和单次入场规则。"
+  },
+  {
+    "id": "salon-du-chocolat-paris-2026",
+    "title": "Salon du Chocolat Paris",
+    "url": "https://www.salon-du-chocolat.com/fr-FR/paris/",
+    "type": "official",
+    "role": "fact",
+    "language": "fr",
+    "status": "confirmed",
+    "checkedAt": "2026-07-19",
+    "supports": ["event-dates", "venue", "tickets"],
+    "recheckBefore": "2026-10-01",
+    "notes": "2026 年 10 月 28 日至 11 月 1 日，Paris Expo Porte de Versailles。"
+  },
+  {
+    "id": "barcelona-autumn-traditions",
+    "title": "Barcelona Turisme autumn traditions",
+    "url": "https://www.barcelonaturisme.com/wv3/ca/page/5343/descobriu-el-captivador-encant-tardorenc-de-barcelona.html",
+    "type": "official",
+    "role": "fact",
+    "language": "ca",
+    "status": "confirmed",
+    "checkedAt": "2026-08-01",
+    "supports": ["castanyada", "castanyada-date", "local-traditions"],
+    "recheckBefore": "2026-10-15",
+    "notes": "官方当前页面明确写明 Castanyada 在 10 月 31 日庆祝，并介绍街头烤栗子、烤红薯和 panellets 传统；不代表 2026 街区节目已公布。"
+  },
+  {
+    "id": "catalonia-all-saints-castanyada",
+    "title": "Tots Sants Barcelona i la Castanyada",
+    "url": "https://patrimonifestiu.cultura.gencat.cat/Tots-Sants-Barcelona-la-Castanyada",
+    "type": "official",
+    "role": "fact",
+    "language": "ca",
+    "status": "confirmed",
+    "checkedAt": "2026-07-19",
+    "supports": ["all-saints", "castanyada", "cemetery-traditions"],
+    "recheckBefore": "2026-10-15",
+    "notes": "用于理解 11 月 1 日纪念传统；墓园开放与交通需另行复核。"
+  }
+]

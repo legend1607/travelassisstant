@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "0.1.0",
+  "accessClasses": ["A", "B", "C"],
+  "editorialSubtypes": [
+    "city-life-culture",
+    "food-drink",
+    "events-listing",
+    "local-news",
+    "industry-specialist"
+  ],
+  "searchFunnel": [
+    "建立目的地、季节、交通、公共假日和官方活动事实骨架。",
+    "用地区查询意图寻找地方菜、时令物产、市场、社区空间和特殊体验。",
+    "用选中 taste brief 的词发现候选；未选模板时使用用户明确偏好。",
+    "先探测来源访问性，再使用可访问的具名本地编辑源与社区线索。",
+    "对短名单逐项核实官网、菜单、票务、营业、预约和地址。",
+    "使用地图或已配置工具检查真实移动；四个以上正式停靠点比较至少两种顺序。",
+    "检查不同来源是否相互转载；冲突时记录采用理由。",
+    "新搜索主要返回重复候选且正式与替代路线成立时停止。"
+  ],
+  "packs": [
+    {"id": "global-base", "path": "global-base.json", "countryCodes": ["*"], "version": "0.1.0"},
+    {"id": "china-mainland", "path": "china-mainland.json", "countryCodes": ["CN"], "version": "0.1.0"},
+    {"id": "japan", "path": "japan.json", "countryCodes": ["JP"], "version": "0.1.0"},
+    {"id": "france-belgium", "path": "france-belgium.json", "countryCodes": ["FR", "BE"], "version": "0.1.0"}
+  ]
+}

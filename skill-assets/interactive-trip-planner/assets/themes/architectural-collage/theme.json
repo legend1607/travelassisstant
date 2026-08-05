@@ -1,0 +1,67 @@
+{
+  "id": "architectural-collage",
+  "label": "Architectural Collage",
+  "kind": "ui-theme",
+  "version": 1,
+  "coreCompatibility": [
+    "europe-map-direct-v1"
+  ],
+  "keywords": [
+    "architectural folio",
+    "paper surface",
+    "thin rules",
+    "irregular markers",
+    "high-density editorial map"
+  ],
+  "tokens": {
+    "color": {
+      "background": "#F7F0DF",
+      "surface": "#FBF7EC",
+      "text": "#302B28",
+      "muted": "#706A60",
+      "accent": "#283E64",
+      "route": "#283E64",
+      "marker": "#283E64",
+      "warning": "#C84239",
+      "line": "#D9CDBB"
+    },
+    "type": {
+      "title": "Iowan Old Style, Songti SC, Noto Serif SC, Georgia, serif",
+      "ui": "-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif"
+    },
+    "spacing": {
+      "grid": "8px",
+      "half": "4px"
+    },
+    "radius": {
+      "control": "4px",
+      "card": "6px",
+      "panel": "8px"
+    },
+    "shadow": {
+      "card": "none",
+      "panel": "none",
+      "marker": "none"
+    },
+    "component": {
+      "surface": "paper with one-pixel rule",
+      "divider": "narrow destination preset raster slice",
+      "density": "high-density travel workbench"
+    },
+    "map": {
+      "renderer": "leaflet-raster",
+      "markerShape": "irregular polygon",
+      "markerVariantStrategy": "stable-poi-id-hash",
+      "markerShapeVariantCount": 5,
+      "markerToneVariantCount": 5,
+      "routeLine": "two-pixel dashed sequence reference",
+      "tileTreatment": "warm low-saturation CSS filter on tile pane only"
+    }
+  },
+  "rules": {
+    "keepsCoreBehavior": true,
+    "allowsRemoteFonts": false,
+    "allowsMapProviderChange": false,
+    "highSaturationAreaMaximum": "10%"
+  }
+}

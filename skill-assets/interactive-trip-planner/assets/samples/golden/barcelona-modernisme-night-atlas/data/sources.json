@@ -1,0 +1,32 @@
+[
+  {
+    "id": "bcn-sagrada-familia-official",
+    "title": "Sagrada Familia official tickets",
+    "url": "https://sagradafamilia.org/en/tickets",
+    "type": "official",
+    "checkedAt": "2026-07-06",
+    "supports": ["reservation", "opening-hours", "visitor-rules"],
+    "recheckBefore": "before booking",
+    "notes": "Official ticket page; timed entry and access rules must be checked again for real trips."
+  },
+  {
+    "id": "bcn-casa-batllo-official",
+    "title": "Casa Batllo official site",
+    "url": "https://www.casabatllo.es/en/",
+    "type": "official",
+    "checkedAt": "2026-07-06",
+    "supports": ["reservation", "visitor-info"],
+    "recheckBefore": "before booking",
+    "notes": "Use for ticket types, special night visits, and visit rules."
+  },
+  {
+    "id": "bcn-park-guell-official",
+    "title": "Park Guell official site",
+    "url": "https://parkguell.barcelona/en",
+    "type": "official",
+    "checkedAt": "2026-07-06",
+    "supports": ["reservation", "visitor-info"],
+    "recheckBefore": "before booking",
+    "notes": "Check timed access and entrance logistics."
+  }
+]

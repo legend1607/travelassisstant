@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "0.1.0",
+  "modelId": "food-nightlife-locality",
+  "discoveryPriorities": ["food-drink", "city-life-culture", "industry-specialist", "community-experience"],
+  "verificationPriorities": ["official-fact", "operator-menu-booking", "spatial-search"],
+  "rankSignals": ["local-food-role", "distinct-making-or-service", "short-night-radius", "safe-return"],
+  "guardrails": [
+    "榜单只降低初筛成本，不直接成为必去等级。",
+    "社区体验可以说明排队、点单和氛围，不能单独证明营业或订位。",
+    "路线、安全、睡眠与用户饮食限制高于模板偏好。"
+  ]
+}

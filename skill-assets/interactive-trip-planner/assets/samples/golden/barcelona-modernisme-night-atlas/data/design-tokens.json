@@ -1,0 +1,52 @@
+{
+  "color": {
+    "background": "#f7f0e4",
+    "surface": "#fffaf0",
+    "text": "#231c1a",
+    "muted": "#78675c",
+    "accent": "#9b3f31",
+    "route": "#7f1f35",
+    "marker": "#1f6f70",
+    "warning": "#c48625",
+    "line": "#d8c5ad"
+  },
+  "type": {
+    "fontFamily": "\"Fraunces\", \"Noto Serif SC\", Georgia, serif",
+    "title": { "size": "30px", "lineHeight": "1.08", "weight": 700 },
+    "section": { "size": "14px", "lineHeight": "1.2", "weight": 700 },
+    "cardTitle": { "size": "16px", "lineHeight": "1.28", "weight": 700 },
+    "body": { "size": "13.5px", "lineHeight": "1.48", "weight": 400 },
+    "meta": { "size": "11.5px", "lineHeight": "1.35", "weight": 600 },
+    "button": { "size": "12.5px", "lineHeight": "1.2", "weight": 700 },
+    "popup": { "size": "13px", "lineHeight": "1.45", "weight": 400 }
+  },
+  "spacing": {
+    "xs": "4px",
+    "sm": "8px",
+    "md": "12px",
+    "lg": "18px"
+  },
+  "radius": {
+    "control": "6px",
+    "card": "7px",
+    "panel": "8px"
+  },
+  "shadow": {
+    "card": "0 1px 0 rgba(35, 28, 26, 0.08)",
+    "panel": "0 14px 34px rgba(35, 28, 26, 0.16)",
+    "marker": "0 4px 12px rgba(127, 31, 53, 0.28)"
+  },
+  "component": {
+    "sidebarDensity": "medium-high",
+    "buttonStyle": "small filled pills with warm border",
+    "badgeStyle": "exhibition-label badges with mosaic-edge accent",
+    "drawerStyle": "warm paper drawer with dark night header"
+  },
+  "map": {
+    "markerShape": "numbered circle with subtle broken-mosaic corner",
+    "routeLine": "solid burgundy for daytime route, dotted ink-blue for night route",
+    "assignedMarkerLabel": "numbered",
+    "candidateMarkerLabel": "small category glyph",
+    "draftMarkerLabel": "highlight ring plus pending reroute label"
+  }
+}

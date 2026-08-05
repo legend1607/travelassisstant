@@ -1,0 +1,68 @@
+[
+  {
+    "id": "art-basel-paris-public-days-2026",
+    "name": "Art Basel Paris 2026 public days",
+    "name_zh": "2026 巴黎巴塞尔艺术展公众开放日",
+    "scope": "venue",
+    "city": "Paris",
+    "area": "Grand Palais / 8e",
+    "status": "confirmed",
+    "startsAt": "2026-10-23T11:00:00+02:00",
+    "endsAt": "2026-10-25T19:00:00+01:00",
+    "venuePoiId": "paris-art-basel-paris-at-grand-palais",
+    "coords": [
+      48.8661,
+      2.3125
+    ],
+    "routeImpact": "anchor",
+    "whyWorthIt": "公众开放日把巴黎段的当代艺术兴趣集中到 Grand Palais，也提供了明确的同期活动时间窗。",
+    "plan": "在 10/24 或 10/25 选择一个完整时段；首日抵达延误时优先保留 10/25。",
+    "tip": "公众开放为 10 月 23–25 日 11:00–19:00；按票种复核单次入场和最终入口。",
+    "officialUrl": "https://www.artbasel.com/paris/visitor-information?lang=en",
+    "sourceIds": [
+      "art-basel-paris-2026",
+      "art-basel-paris-tickets-2026"
+    ],
+    "recheckAt": "2026-10-01"
+  },
+  {
+    "id": "barcelona-castanyada-program-2026",
+    "name": "Barcelona Castanyada program recheck",
+    "name_zh": "巴塞罗那 Castanyada 街区节目待公布",
+    "scope": "hosted",
+    "city": "Barcelona",
+    "area": "Ciutat Vella",
+    "status": "program-pending",
+    "startsAt": "2026-10-31",
+    "endsAt": "2026-10-31",
+    "hostPoiId": "barcelona-la-castanyada-activity-core",
+    "routeImpact": "nearby",
+    "whyWorthIt": "官方旅游资料确认 10 月 31 日的 Castanyada 传统，但公开样例没有把尚未发布的街区节目写成确定场次。",
+    "plan": "保留老城的烤栗子、烤红薯和 panellets 夜线，具体活动只在节目发布后再决定是否停留。",
+    "tip": "临近出发复核街区节目、摊位位置和晚间回程；当前只按节日氛围安排。",
+    "officialUrl": "https://www.barcelonaturisme.com/wv3/ca/page/5343/descobriu-el-captivador-encant-tardorenc-de-barcelona.html",
+    "sourceIds": [
+      "barcelona-autumn-traditions"
+    ],
+    "recheckAt": "2026-10-15"
+  },
+  {
+    "id": "barcelona-all-saints-city-context-2026",
+    "name": "Barcelona All Saints city context",
+    "name_zh": "巴塞罗那诸圣节城市提示",
+    "scope": "citywide",
+    "city": "Barcelona",
+    "status": "program-pending",
+    "startsAt": "2026-11-01",
+    "endsAt": "2026-11-01",
+    "routeImpact": "avoidance",
+    "whyWorthIt": "诸圣节会改变墓园周边的人流与城市纪念氛围，值得在当天路线中提前提示。",
+    "plan": "11 月 1 日只把纪念传统作为城市语境；开放、交通和纪念活动发布后再调整蒙锥克路线。",
+    "tip": "尊重家庭祭扫，不把纪念活动当作表演；出发前复核墓园开放与公共交通。",
+    "officialUrl": "https://patrimonifestiu.cultura.gencat.cat/Tots-Sants-Barcelona-la-Castanyada",
+    "sourceIds": [
+      "catalonia-all-saints-castanyada"
+    ],
+    "recheckAt": "2026-10-15"
+  }
+]

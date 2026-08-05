@@ -1,0 +1,38 @@
+{
+  "themeProfile": {
+    "id": "food-nightlife",
+    "purpose": "吃喝夜生活线",
+    "emphasize": ["restaurant-role", "bar-radius", "late-return-safety", "light-dinner"],
+    "visualResearchPrompts": ["local menu design", "cocktail bar identity", "night district signage"]
+  },
+  "pois": [
+    {
+      "id": "sample-bar",
+      "name": "Sample Cocktail Bar",
+      "name_zh": "示例鸡尾酒吧",
+      "city": "Sample City",
+      "area": "Nightlife District",
+      "category": "bar",
+      "priority": "preferred",
+      "coords": [41.39, 2.17],
+      "note": "体现这座城市当代饮酒文化的候选。",
+      "plan": "安排在轻量晚餐后，和同街区第二家 bar 形成短半径组合。",
+      "tip": "复核订位、排队、最低消费和夜间回酒店方式。",
+      "source": "sample",
+      "themeTags": ["food-nightlife"],
+      "mealRole": "late-night"
+    }
+  ],
+  "itinerary": [
+    {
+      "id": "day-1",
+      "date": "2026-01-01",
+      "title": "轻晚餐与短半径酒吧线",
+      "city": "Sample City",
+      "summary": "晚餐不排重套餐，把体力留给同街区 bar hopping。",
+      "anchors": ["sample-bar"],
+      "routeStops": [{ "poiId": "sample-bar", "order": 2, "time": "21:30", "role": "nightlife" }],
+      "candidates": []
+    }
+  ]
+}

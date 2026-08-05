@@ -1,0 +1,42 @@
+[
+  {
+    "id": "tyo-tnm-official",
+    "title": "Tokyo National Museum official site",
+    "url": "https://www.tnm.jp/?lang=en",
+    "type": "official",
+    "checkedAt": "2026-07-06",
+    "supports": ["opening-hours", "ticket", "exhibition"],
+    "recheckBefore": "before booking",
+    "notes": "Use for admission, hours, exhibitions, and access."
+  },
+  {
+    "id": "tyo-sensoji-official",
+    "title": "Senso-ji official site",
+    "url": "https://www.senso-ji.jp/english/",
+    "type": "official",
+    "checkedAt": "2026-07-06",
+    "supports": ["visitor-info"],
+    "recheckBefore": "before travel",
+    "notes": "Use for temple visitor information and event notices."
+  },
+  {
+    "id": "tyo-shibuya-sky-official",
+    "title": "Shibuya Sky official site",
+    "url": "https://www.shibuya-scramble-square.com/sky/",
+    "type": "official",
+    "checkedAt": "2026-07-06",
+    "supports": ["reservation", "weather-risk"],
+    "recheckBefore": "before booking",
+    "notes": "Sunset and rooftop access depend on ticket availability and weather."
+  },
+  {
+    "id": "tyo-teamlab-official",
+    "title": "teamLab Borderless Azabudai official page",
+    "url": "https://www.teamlab.art/e/borderless-azabudai/",
+    "type": "official",
+    "checkedAt": "2026-07-06",
+    "supports": ["reservation", "visitor-info"],
+    "recheckBefore": "before booking",
+    "notes": "Check tickets, entry rules, and exhibition updates."
+  }
+]
