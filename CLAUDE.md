@@ -1,0 +1,16 @@
+# travel-assistant - 旅行助手技能包
+四阶段流水线：Plan → Research → Build → Visualize
+
+<directory>
+assets/ - AMap JSAPI 地图模板和配置 (2文件: template.html, env.js)
+references/ - 规划、调研、地图服务、路线可视化方法论 (7文件)
+shared/ - 统一行程数据格式 (1文件: route-schema.json)
+</directory>
+
+<config>
+SKILL.md - Agent 技能入口，定义触发条件、共享记忆和四阶段流程
+</config>
+
+法则: 行程是参考坐标，不是执行脚本。AMap 是唯一地图引擎。记忆只存下次仍有用的偏好。餐厅先看当天区域，再看大众点评和小红书。大众点评注意刷好评，小红书注意推广帖和差评。
+
+[PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
