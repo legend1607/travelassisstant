@@ -1,0 +1,154 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Travel Assistant Route Schema",
+  "description": "统一行程数据格式，Phase 1 产出，Phase 3 和 Phase 4 共用",
+  "type": "object",
+  "required": ["trip", "days"],
+  "properties": {
+    "trip": {
+      "type": "object",
+      "required": ["title", "days"],
+      "properties": {
+        "title": { "type": "string", "description": "行程标题" },
+        "days": { "type": "integer", "description": "总天数" },
+        "startDate": { "type": "string", "description": "开始日期 YYYY-MM-DD" },
+        "travelers": {
+          "type": "object",
+          "properties": {
+            "adults": { "type": "integer" },
+            "children": { "type": "integer" },
+            "seniors": { "type": "integer" }
+          }
+        },
+        "transportMode": {
+          "type": "string",
+          "enum": ["driving", "transit", "walking", "mixed"],
+          "description": "主要交通方式"
+        },
+        "pace": {
+          "type": "string",
+          "enum": ["compact", "standard", "relaxed"],
+          "description": "节奏偏好"
+        }
+      }
+    },
+    "hotel": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "address": { "type": "string" },
+        "lng": { "type": "number" },
+        "lat": { "type": "number" }
+      }
+    },
+    "days": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["day"],
+        "properties": {
+          "day": { "type": "integer", "description": "第几天" },
+          "date": { "type": "string", "description": "日期 YYYY-MM-DD" },
+          "area": { "type": "string", "description": "主区域名" },
+          "weather": {
+            "type": "object",
+            "properties": {
+              "condition": { "type": "string" },
+              "temp": { "type": "string" },
+              "rainfall": { "type": "string" }
+            }
+          },
+          "locations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "type", "lng", "lat"],
+              "properties": {
+                "name": { "type": "string" },
+                "type": {
+                  "type": "string",
+                  "enum": ["food", "spot", "drink", "hotel", "transport"]
+                },
+                "lng": { "type": "number" },
+                "lat": { "type": "number" },
+                "address": { "type": "string" },
+                "time": { "type": "string", "description": "计划时间 HH:MM" },
+                "desc": { "type": "string" },
+                "budget": { "type": "string" },
+                "pay": {
+                  "type": "number",
+                  "enum": [0, 0.5, 1],
+                  "description": "支付方式确认：1=确认, 0.5=不确定, 0=不适用"
+                },
+                "xhs": { "type": "string", "description": "小红书链接" },
+                "reserve": { "type": "string", "description": "预约链接" },
+                "amap": {
+                  "type": "object",
+                  "description": "高德 POI 数据",
+                  "properties": {
+                    "poiId": { "type": "string" },
+                    "rating": { "type": "number" },
+                    "tel": { "type": "string" },
+                    "openHours": { "type": "string" }
+                  }
+                },
+                "dianping": {
+                  "type": "object",
+                  "description": "大众点评数据",
+                  "properties": {
+                    "taste": { "type": "number" },
+                    "queue": { "type": "string" },
+                    "verdict": { "type": "string" },
+                    "reviewCredibility": {
+                      "type": "string",
+                      "enum": ["high", "medium", "low-suspect"]
+                    }
+                  }
+                },
+                "xhsData": {
+                  "type": "object",
+                  "description": "小红书数据",
+                  "properties": {
+                    "link": { "type": "string" },
+                    "verdict": { "type": "string" },
+                    "negativeRatio": { "type": "number", "description": "差评占比 0-1" },
+                    "negativeImpact": {
+                      "type": "string",
+                      "enum": ["low", "medium", "high"]
+                    },
+                    "promotionalPostsDetected": { "type": "integer" },
+                    "postType": {
+                      "type": "string",
+                      "enum": ["organic", "promotional"]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "route": {
+            "type": "object",
+            "properties": {
+              "segments": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "from": { "type": "string" },
+                    "to": { "type": "string" },
+                    "mode": {
+                      "type": "string",
+                      "enum": ["driving", "walking", "transit"]
+                    },
+                    "duration": { "type": "integer", "description": "通行时间（分钟）" },
+                    "distance": { "type": "number", "description": "距离（公里）" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
