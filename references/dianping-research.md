@@ -1,4 +1,4 @@
-# 大众点评调研工作流 (OpenCLI)
+# 大众点评调研工作流 (OpenCLI + CDP)
 
 ## 前提
 
@@ -9,7 +9,7 @@ OpenCLI 已提供大众点评 browser adapter，目标站点是 `www.dianping.co
 ## 环境要求
 
 - Chrome 已登录 `dianping.com`
-- 已安装 OpenCLI Browser Bridge 扩展
+- 已安装 OpenCLI Browser Bridge 扩展（或使用 CDP 直连）
 - 优先使用 PC 站；移动站对非移动 UA 限制较多
 
 ## 搜索餐厅
@@ -43,6 +43,25 @@ opencli dianping detail <shop_id> -f json
 
 ```bash
 opencli dianping shop "https://www.dianping.com/shop/<shop_id>"
+```
+
+## CDP 直连方案（备选）
+
+当 OpenCLI Browser Bridge 扩展不可用时，可直接通过 CDP 连接 Chrome。
+
+```js
+import { CDPBridge } from '@jackwener/opencli/dist/src/browser/cdp.js';
+
+const bridge = new CDPBridge();
+const page = await bridge.connect({
+  cdpEndpoint: 'http://127.0.0.1:9222',
+  timeout: 10
+});
+
+// 导航到搜索页
+await bridge.send('Page.navigate', {
+  url: 'https://www.dianping.com/search/keyword/2/0_银座午餐'
+});
 ```
 
 ## 判断标准
@@ -99,6 +118,39 @@ opencli dianping shop "https://www.dianping.com/shop/<shop_id>"
 - 小红书：更像工作日简餐
 ```
 
+## CDP 验证结论（2026-08-12）
+
+### 验证环境
+
+- OpenCLI v1.8.6，daemon 运行正常
+- Chrome 150.0.7871.181，CDP 端口 9222
+- Browser Bridge 扩展未连接（sandbox 环境限制）
+
+### 验证结果
+
+| 测试项 | 结果 | 说明 |
+|--------|------|------|
+| CDP 连接 | PASS | `bridge.connect()` 成功建立连接 |
+| 页面导航 | PASS | `Page.navigate` 成功跳转到搜索页 |
+| DOM 求值 | PASS | `Runtime.evaluate` 可正常读取页面内容 |
+| 搜索结果获取 | BLOCKED | 被重定向到 `verify.meituan.com` 验证中心 |
+
+### 分析
+
+大众点评对未登录的 CDP 访问触发了反爬验证（`verify.meituan.com`），搜索结果为空。这是预期行为：
+
+1. **CDP 链路本身完全可用** — 连接、导航、DOM 求值全部正常
+2. **需要登录态** — Chrome 浏览器需先手动登录 `dianping.com`，保持 cookie 有效
+3. **建议** — 在真实使用环境中，先用 Chrome 正常登录大众点评，再启动 CDP 调试端口
+
+### 降级策略
+
+当大众点评不可用时，Phase 2 的降级优先级：
+
+1. **AMap PlaceSearch** — 提供坐标、电话、营业时间等结构化数据
+2. **小红书** — 提供氛围和体验信号（同样需要登录态）
+3. **手动补充** — Agent 根据已有信息给出最佳建议，标注"大众点评数据缺失"
+
 ## 常见坑
 
 - 只按评分选店，不看它是否在当天区域
@@ -107,6 +159,7 @@ opencli dianping shop "https://www.dianping.com/shop/<shop_id>"
 - 忽略排队、预约和营业时间
 - 搜索词太泛，得到一堆游客店
 - 不识别刷好评，被虚假高分误导
+- 未登录直接访问，被反爬验证拦截
 
 ## 官方参考
 
