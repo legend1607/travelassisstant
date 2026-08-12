@@ -12,6 +12,7 @@ build/
 .env.local
 .env.*.local
 assets/env.js
+assets/env.local.js
 
 # Generated trip maps — Phase 3 产物
 index.html
@@ -24,6 +25,7 @@ index.html
 
 # Travel assistant memory — 本地偏好文件
 MEMORY.md
+~/.travel-assistant/
 
 # IDE
 .vscode/
@@ -54,3 +56,6 @@ coverage/
 # Redskill
 .redskill-installed
 .redskill-lock.json
+
+# Browser CDP profiles
+/tmp/opencli-chrome-cdp/
