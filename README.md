@@ -6,12 +6,12 @@
 
 ## 四阶段流程
 
-| 阶段 | 名称 | 输入 | 输出 |
-|------|------|------|------|
-| Phase 1 | Plan | 用户需求 + 硬约束 | 参考行程 + `route-schema.json` |
-| Phase 2 | Research | Phase 1 行程 | 填充调研数据的 `route-schema.json` |
-| Phase 3 | Build | Phase 2 行程 | AMap JSAPI 3D 交互式地图页面 |
-| Phase 4 | Visualize | `route-schema.json` | AI 生成的路线图图片（可选） |
+| 阶段 | 名称 | 输入 | 输出 | 验证状态 |
+|------|------|------|------|----------|
+| Phase 1 | Plan | 用户需求 + 硬约束 | 参考行程 + `route-schema.json` | ✅ |
+| Phase 2 | Research | Phase 1 行程 | 填充调研数据的 `route-schema.json` | ⚠️ 需登录态 |
+| Phase 3 | Build | Phase 2 行程 | AMap JSAPI 3D 交互式地图页面 | ✅ |
+| Phase 4 | Visualize | `route-schema.json` | AI 生成的路线图图片（可选） | 待验证 |
 
 ## 项目结构
 
@@ -22,7 +22,7 @@ travel-assistant/
 ├── README.md                       # 本文件
 ├── assets/
 │   ├── template.html               # AMap JSAPI 3D 交互式地图模板
-│   └── env.js                      # 高德 API Key + 安全密钥配置
+│   └── env.example.js              # 高德 API Key 配置模板（复制为 env.js 使用）
 ├── references/
 │   ├── trip-planning.md            # 行程规划方法论
 │   ├── amap-services.md            # 高德服务集成指南
@@ -39,13 +39,15 @@ travel-assistant/
 | 工具 | 用途 | 安装 |
 |------|------|------|
 | AMap JSAPI v2.0 | 地图渲染 + 地理服务 | loader.js CDN，需 API Key |
-| OpenCLI | 大众点评 + 小红书调研 | `npm install -g @jackwener/opencli` |
+| OpenCLI v1.8.6+ | 大众点评 + 小红书调研 | `npm install -g @jackwener/opencli` |
 | Chrome/Chromium | 浏览器 + 远程调试 | 已有 |
 | AI 生图工具 | Phase 4 路线图生成 | 内置 |
 
 ## 环境配置
 
-设置高德 API Key（编辑 `assets/env.js`）：
+1. 复制配置模板：`cp assets/env.example.js assets/env.js`
+2. 编辑 `assets/env.js`，填入你的高德 API Key 和安全密钥
+3. `env.js` 已在 `.gitignore` 中，不会被提交
 
 ```javascript
 window._AMapSecurityConfig = {
@@ -53,6 +55,15 @@ window._AMapSecurityConfig = {
 };
 window.AMAP_JSAPI_KEY = '你的Web端Key';
 ```
+
+## Phase 2 调研链路前提
+
+大众点评和小红书均需要已登录的浏览器会话：
+
+- **大众点评**：未登录会重定向至 `verify.meituan.com` 验证中心（拼图滑块）
+- **小红书**：未登录会弹出"登录后查看搜索结果"弹窗
+
+使用 OpenCLI + Chrome CDP 连接真实已登录的浏览器，不要使用 headless 模式。
 
 ## 触发词
 
