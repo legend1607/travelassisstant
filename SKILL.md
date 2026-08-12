@@ -6,7 +6,7 @@ description: >
   使用高德地图 JSAPI v2.0 作为唯一地图引擎，面向国内旅行场景。
   触发词："做个行程"、"行程规划"、"行程地图"、"trip map"、"plan my trip"、"帮我画路线图"、"生成行程封面"。
 license: MIT
-version: 1.1.0
+version: 1.2.0
 homepage: https://github.com/legend1607/travelassisstant
 metadata:
   openclaw:
@@ -21,23 +21,71 @@ metadata:
 
 输出是**参考行程**，不是旅途中必须执行的脚本。天气、当前位置、体力、饥饿程度都可以覆盖原计划。
 
+## 执行检查清单（HARD GATE）
+
+每次执行**必须**按顺序确认：
+
+- [ ] **START**：读取 `~/.travel-assistant/MEMORY.md`（不存在则跳过，不阻塞）
+- [ ] **Phase 1**：输出 route-schema.json + 参考文档
+- [ ] **Phase 2**：尝试调研；若不可用，在行程中标注"未经调研验证"
+- [ ] **Phase 3**：生成交互式地图 index.html
+- [ ] **Phase 4**：（可选）用户明确要求才触发
+- [ ] **END**：创建/更新 `~/.travel-assistant/MEMORY.md`
+
+**最后一步不可跳过。** 即便行程简单，也要写入 MEMORY.md。
+
 ## 共享记忆
 
-开始前读取 `~/.travel-assistant/MEMORY.md`（如存在）。仅用于持久化旅行偏好：
+`~/.travel-assistant/MEMORY.md` 是跨会话持久化文件。
 
+### 何时读取
+
+每次会话开始时读取（如存在）。用于继承旅行偏好：
 - 交通方式偏好、节奏偏好
 - 餐饮口味和预算习惯
 - 支付和导航偏好
 - 历史行程输出索引
 - 未解决的问题
 
-不存在则正常继续，不阻塞。不存储截图、证件、订单号、聊天记录。
+不存在则正常继续，不阻塞。
 
-每次完成后更新 MEMORY.md，只保存下次仍有用的信息。
+### 何时写入（强制）
+
+**每次会话结束时必须更新**，只保存下次仍有用的信息：
+
+```markdown
+# Travel Assistant Memory
+
+## 旅行偏好
+- 交通：[偏好]
+- 节奏：[偏好]
+- 餐饮预算：[范围]
+- 住宿偏好：[偏好]
+- 喜欢的类型：[列表]
+- 避免的类型：[列表]
+- 体力/排队容忍：[范围]
+
+## 历史行程
+- YYYY-MM-DD [目的地] [天数]天 → [输出路径]
+
+## 未解决问题
+- [如有]
+```
+
+不存储截图、证件、订单号、聊天记录。
 
 ## 共享数据
 
 Phase 1 产出 `shared/route-schema.json`，Phase 3 和 Phase 4 共用。行程只标准化一次。
+
+### 数据可信度标记
+
+route-schema.json 中每个 location 应包含 `verified` 字段：
+
+- `true` — Phase 2 已调研，amap/dianping/xhs 字段已填充
+- `false` — Phase 2 未执行或该点未调研，数据基于通用知识
+
+Phase 2 未执行时，所有 location 的 `verified` 设为 `false`，并在地图卡片上标注"未经调研验证"。
 
 ## Phase 1: Plan — 行程规划 + AMap 验证
 
@@ -58,7 +106,7 @@ Phase 1 产出 `shared/route-schema.json`，Phase 3 和 Phase 4 共用。行程�
 7. **按区域重组** — 一天一个主区域
 8. **补餐饮** — 按当天区域给候选
 9. **补票务交通** — 只查关键的
-10. **输出** — 参考文档 + `route-schema.json`
+10. **输出** — 参考文档 + `route-schema.json`（每个 location 标注 `verified` 字段）
 
 读取 `references/amap-services.md` 获取 AMap 服务 API 用法。
 
@@ -78,6 +126,15 @@ Phase 1 产出 `shared/route-schema.json`，Phase 3 和 Phase 4 共用。行程�
 - 小红书会弹出"登录后查看搜索结果"弹窗
 
 使用 OpenCLI + Chrome CDP 连接真实浏览器（已登录态），不要使用 headless 模式。
+
+### 降级策略（重要）
+
+当 OpenCLI Browser Bridge 未连接或浏览器无登录态时：
+
+1. **不静默跳过** — 明确告知用户"Phase 2 调研未执行"
+2. **标注可信度** — 所有 location 的 `verified` 设为 `false`
+3. **地图标注** — 在 index.html 卡片上显示"⚠ 未经调研验证"标签
+4. **建议替代** — 告知用户可在手机上自行搜索验证，或后续补充调研
 
 ### 核心流程
 
@@ -99,26 +156,42 @@ Phase 1 产出 `shared/route-schema.json`，Phase 3 和 Phase 4 共用。行程�
 
 ### 更新 route-schema.json
 
-填充每个 location 的 `amap`、`dianping`、`xhs` 字段。
+填充每个 location 的 `amap`、`dianping`、`xhs` 字段，并将 `verified` 设为 `true`。
 
 ## Phase 3: Build — AMap JSAPI 交互式地图
 
 1. 复制 `assets/template.html` → `index.html`
 2. 复制 `assets/env.example.js` → `env.js`，填入你的高德 API Key 和安全密钥
 3. 填充 `HOTEL` 对象和 `DAYS` 数组（来自 route-schema.json）
-4. 每个 location 需要：name, lng/lat, type, time, desc; 可选：budget, pay, xhs, reserve, amap
-5. 填充 `overviewContent()` 行程摘要 + 支付提示
-6. 默认 Apple 设计系统，可通过 awesome-design-md 切换
+4. 每个 location 需要：name, lng/lat, type, time, desc; 可选：budget, pay, xhs, reserve, amap, verified
+5. 未验证 location (`verified: false`) 的卡片上显示"⚠ 未经调研验证"标签
+6. 填充 `overviewContent()` 行程摘要 + 支付提示
+7. 默认 Apple 设计系统，可通过 awesome-design-md 切换
 
 Location types: `food` | `spot` | `drink` | `hotel` | `transport`
 
 Payment chip values: `1` = 已确认（绿色）, `0.5` = 不确定（橙色）, 省略 = 不显示
 
-### 部署（可选）
+### 部署
+
+**方式一：GitHub Pages（推荐，手机可直接访问）**
 
 ```bash
+# 推送到 GitHub 仓库
 git init && git add . && git commit -m "trip map"
 gh repo create REPO --public --source=. --push
+
+# 开启 GitHub Pages
+gh api repos/:owner/:repo/pages -X POST -f "source[branch]=main" -f "source[path]=/"
+# 等待几分钟后访问 https://<username>.github.io/<repo>/
+```
+
+**方式二：本地服务器（仅本机访问）**
+
+```bash
+python3 -m http.server 8080
+# 访问 http://localhost:8080/index.html
+# 注意：沙箱环境中手机无法通过 localhost 访问
 ```
 
 ## Phase 4: Visualize — AI 生图（可选）
@@ -143,7 +216,7 @@ gh repo create REPO --public --source=. --push
 
 ## Resources
 
-- `references/trip-planning.md` — 行程规划方法论、输入/输出模板、选点原则
+- `references/trip-planning.md` — 行程规划方法论、输入/输出模板、选点原则、输出检查清单
 - `references/dianping-research.md` — 大众点评工作流、刷好评识别
 - `references/xhs-research.md` — 小红书工作流、差评筛选、推广帖甄别
 - `references/amap-services.md` — 高德服务集成指南
