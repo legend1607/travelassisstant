@@ -76,12 +76,12 @@ Phase 1 产出 `shared/route-schema.json`，Phase 3 和 Phase 4 共用。行程�
 1. **AMap POI 搜索** — `AMap.PlaceSearch.searchNearBy` 按区域搜索餐厅/景点
 2. **AMap 输入提示** — `AMap.AutoComplete.search` 补全地址和坐标
 3. **AMap 天气查询** — `AMap.Weather.getLive/getForecast` 标记天气敏感点
-4. **大众点评调研** — OpenCLI 获取口味/排队/踩雷信号
+4. **大众点评调研** — OpenCLI/CDP 获取口味/排队/踩雷信号
 5. **小红书调研** — Chrome CDP 获取氛围/体验/拍照信号
 6. **信号合并** — AMap 结构化数据 + 大众点评餐饮判断 + 小红书体验补充
 
-读取 `references/dianping-research.md` 获取大众点评工作流（含刷好评识别）。
-读取 `references/xhs-research.md` 获取小红书工作流（含差评筛选+推广帖甄别）。
+读取 `references/dianping-research.md` 获取大众点评工作流（含刷好评识别 + CDP 验证结论）。
+读取 `references/xhs-research.md` 获取小红书工作流（含差评筛选 + 推广帖甄别 + CDP 验证结论）。
 
 ### 信号合并优先级
 
@@ -96,7 +96,7 @@ Phase 1 产出 `shared/route-schema.json`，Phase 3 和 Phase 4 共用。行程�
 ## Phase 3: Build — AMap JSAPI 交互式地图
 
 1. 复制 `assets/template.html` → `index.html`
-2. 复制 `assets/env.js` → 同目录
+2. 复制 `assets/env.example.js` → `env.js`，填入你的高德 API Key
 3. 填充 `HOTEL` 对象和 `DAYS` 数组（来自 route-schema.json）
 4. 每个 location 需要：name, lng/lat, type, time, desc; 可选：budget, pay, xhs, reserve, amap
 5. 填充 `overviewContent()` 行程摘要 + 支付提示
@@ -136,11 +136,11 @@ gh repo create REPO --public --source=. --push
 ## Resources
 
 - `references/trip-planning.md` — 行程规划方法论、输入/输出模板、选点原则
-- `references/dianping-research.md` — 大众点评工作流、刷好评识别
-- `references/xhs-research.md` — 小红书工作流、差评筛选、推广帖甄别
+- `references/dianping-research.md` — 大众点评工作流、刷好评识别、CDP 验证结论
+- `references/xhs-research.md` — 小红书工作流、差评筛选、推广帖甄别、CDP 验证结论
 - `references/amap-services.md` — 高德服务集成指南
 - `references/route-visualization.md` — 路线图生成方法论
 - `references/style-presets.md` — 视觉风格预设
 - `assets/template.html` — AMap JSAPI HTML 地图模板
-- `assets/env.js` — AMap Key + 安全密钥配置
+- `assets/env.example.js` — AMap Key 配置模板（复制为 env.js 后填入密钥）
 - `shared/route-schema.json` — 统一行程数据格式
