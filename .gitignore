@@ -7,10 +7,23 @@ dist/
 build/
 *.tsbuildinfo
 
-# Environment
+# Environment & Secrets — 防止 API Key 泄露
 .env
 .env.local
 .env.*.local
+assets/env.js
+
+# Generated trip maps — Phase 3 产物
+index.html
+*.trip.html
+
+# Generated images — Phase 4 产物
+*.route-map.png
+*.route-map.jpg
+*.cover-poster.png
+
+# Travel assistant memory — 本地偏好文件
+MEMORY.md
 
 # IDE
 .vscode/
@@ -35,6 +48,9 @@ pnpm-debug.log*
 # Test coverage
 coverage/
 
-# Redskill install markers
+# OpenCLI
+.opencli/
+
+# Redskill
 .redskill-installed
 .redskill-lock.json
