@@ -68,7 +68,7 @@ opencli xiaohongshu search '玉ひで 东京' --limit 10 -f json
 ### Step 2：CDPBridge 连接
 
 ```js
-import { CDPBridge } from '~/.npm-global/lib/node_modules/@jackwener/opencli/dist/src/browser/cdp.js';
+import { CDPBridge } from '@jackwener/opencli/dist/src/browser/cdp.js';
 
 const bridge = new CDPBridge();
 const page = await bridge.connect({
@@ -198,6 +198,45 @@ document.querySelector('.author-container .username')?.innerText  // 作者
 - 推广帖：检测到 2 条，已排除
 ```
 
+## CDP 验证结论（2026-08-12）
+
+### 验证环境
+
+- OpenCLI v1.8.6，daemon 运行正常
+- Chrome 150.0.7871.181，CDP 端口 9222
+- Browser Bridge 扩展未连接（sandbox 环境限制）
+
+### 验证结果
+
+| 测试项 | 结果 | 说明 |
+|--------|------|------|
+| CDP 连接 | PASS | `bridge.connect()` 成功建立连接 |
+| 搜索路由导航 | PASS | 直接导航到 `search_result?keyword=...` 成功 |
+| 页面标题 | PASS | 正确显示"北京烤鸭 - 小红书搜索" |
+| 笔记卡片渲染 | BLOCKED | 0 条笔记（未登录态下内容不渲染） |
+| 风控检测 | DETECTED | 页面文本中出现风控相关提示 |
+
+### 分析
+
+1. **CDP 直连路由方案完全可用** — `Page.navigate` + 搜索结果页 URL 方案验证通过
+2. **搜索结果页标题正确** — 说明小红书服务端正常响应了搜索请求
+3. **笔记内容需要登录态** — 未登录时前端不渲染笔记卡片，页面文本仅 843 字符
+4. **风控提示存在** — 页面文本中检测到风控相关词汇，说明小红书对未登录访问有风控
+
+### 建议
+
+- 在真实使用环境中，先用 Chrome 手动登录 `xiaohongshu.com`，再启动 CDP
+- 登录后重新执行搜索路由导航，笔记卡片应正常渲染
+- 如仍触发风控，等待 10-30 分钟后重试，或模拟更多真实浏览行为（先访问首页，再搜索）
+
+### 降级策略
+
+当小红书不可用时，Phase 2 的降级优先级：
+
+1. **AMap PlaceSearch** — 提供结构化 POI 数据
+2. **大众点评** — 提供餐饮硬信号（同样需要登录态）
+3. **手动补充** — Agent 根据已有信息给出最佳建议，标注"小红书数据缺失"
+
 ## 常见坑
 
 1. **agent-reach ≠ 小红书可用** — 先跑 `agent-reach doctor`，小红书 MCP 没配就别浪费时间
@@ -206,3 +245,4 @@ document.querySelector('.author-container .username')?.innerText  // 作者
 4. **搜索结果混地区内容** — 不是噪音，能看出店在片区里的角色，但不能直接当单店口碑
 5. **不甄别推广帖** — 推广帖会严重扭曲评价，必须先排除再计算差评占比
 6. **只看正面笔记** — 差评笔记往往更有参考价值，必须主动搜索
+7. **未登录直接搜索** — 搜索结果页能打开，但笔记卡片不渲染，必须先登录
