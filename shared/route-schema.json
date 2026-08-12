@@ -20,73 +20,74 @@
             "seniors": { "type": "integer" }
           }
         },
-        "transportMode": {
-          "type": "string",
-          "enum": ["driving", "transit", "walking", "mixed"],
-          "description": "主要交通方式"
+        "hotel": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "lng": { "type": "number" },
+            "lat": { "type": "number" },
+            "address": { "type": "string" }
+          }
         },
-        "pace": {
-          "type": "string",
-          "enum": ["compact", "standard", "relaxed"],
-          "description": "节奏偏好"
+        "budget": {
+          "type": "object",
+          "properties": {
+            "transport": { "type": "number" },
+            "accommodation": { "type": "number" },
+            "food": { "type": "number" },
+            "tickets": { "type": "number" },
+            "local_transport": { "type": "number" },
+            "total": { "type": "number" }
+          }
         }
-      }
-    },
-    "hotel": {
-      "type": "object",
-      "properties": {
-        "name": { "type": "string" },
-        "address": { "type": "string" },
-        "lng": { "type": "number" },
-        "lat": { "type": "number" }
       }
     },
     "days": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["day"],
+        "required": ["day", "label", "area", "locations"],
         "properties": {
-          "day": { "type": "integer", "description": "第几天" },
-          "date": { "type": "string", "description": "日期 YYYY-MM-DD" },
-          "area": { "type": "string", "description": "主区域名" },
+          "day": { "type": "integer" },
+          "label": { "type": "string", "description": "如 D1 · 道里区" },
+          "date": { "type": "string" },
+          "area": { "type": "string", "description": "当天主区域" },
+          "color": { "type": "string", "description": "当天标记颜色" },
           "weather": {
             "type": "object",
             "properties": {
               "condition": { "type": "string" },
-              "temp": { "type": "string" },
-              "rainfall": { "type": "string" }
+              "temp": { "type": "string" }
             }
           },
           "locations": {
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["name", "type", "lng", "lat"],
+              "required": ["name", "type", "lng", "lat", "time"],
               "properties": {
                 "name": { "type": "string" },
-                "type": {
-                  "type": "string",
-                  "enum": ["food", "spot", "drink", "hotel", "transport"]
-                },
+                "type": { "type": "string", "enum": ["food", "spot", "drink", "hotel", "transport"] },
                 "lng": { "type": "number" },
                 "lat": { "type": "number" },
-                "address": { "type": "string" },
-                "time": { "type": "string", "description": "计划时间 HH:MM" },
+                "time": { "type": "string", "description": "HH:MM 或 —" },
                 "desc": { "type": "string" },
                 "budget": { "type": "string" },
                 "pay": {
-                  "type": "number",
-                  "enum": [0, 0.5, 1],
-                  "description": "支付方式确认：1=确认, 0.5=不确定, 0=不适用"
+                  "type": "object",
+                  "properties": {
+                    "cash": { "type": "number", "enum": [0, 0.5, 1] },
+                    "card": { "type": "number", "enum": [0, 0.5, 1] },
+                    "alipay": { "type": "number", "enum": [0, 0.5, 1] },
+                    "wechat": { "type": "number", "enum": [0, 0.5, 1] }
+                  }
                 },
                 "xhs": { "type": "string", "description": "小红书链接" },
                 "reserve": { "type": "string", "description": "预约链接" },
+                "verified": { "type": "boolean", "default": false, "description": "Phase 2 是否已调研验证" },
                 "amap": {
                   "type": "object",
-                  "description": "高德 POI 数据",
                   "properties": {
-                    "poiId": { "type": "string" },
                     "rating": { "type": "number" },
                     "tel": { "type": "string" },
                     "openHours": { "type": "string" }
@@ -94,33 +95,21 @@
                 },
                 "dianping": {
                   "type": "object",
-                  "description": "大众点评数据",
                   "properties": {
                     "taste": { "type": "number" },
                     "queue": { "type": "string" },
                     "verdict": { "type": "string" },
-                    "reviewCredibility": {
-                      "type": "string",
-                      "enum": ["high", "medium", "low-suspect"]
-                    }
+                    "reviewCredibility": { "type": "string", "enum": ["high", "medium", "low-suspect"] }
                   }
                 },
                 "xhsData": {
                   "type": "object",
-                  "description": "小红书数据",
                   "properties": {
                     "link": { "type": "string" },
                     "verdict": { "type": "string" },
-                    "negativeRatio": { "type": "number", "description": "差评占比 0-1" },
-                    "negativeImpact": {
-                      "type": "string",
-                      "enum": ["low", "medium", "high"]
-                    },
-                    "promotionalPostsDetected": { "type": "integer" },
-                    "postType": {
-                      "type": "string",
-                      "enum": ["organic", "promotional"]
-                    }
+                    "negativeRatio": { "type": "number" },
+                    "negativeImpact": { "type": "string", "enum": ["low", "medium", "high"] },
+                    "promotionalPostsDetected": { "type": "integer" }
                   }
                 }
               }
@@ -136,12 +125,10 @@
                   "properties": {
                     "from": { "type": "string" },
                     "to": { "type": "string" },
-                    "mode": {
-                      "type": "string",
-                      "enum": ["driving", "walking", "transit"]
-                    },
-                    "duration": { "type": "integer", "description": "通行时间（分钟）" },
-                    "distance": { "type": "number", "description": "距离（公里）" }
+                    "to2": { "type": "string" },
+                    "mode": { "type": "string", "enum": ["driving", "transit", "walking"] },
+                    "duration": { "type": "number", "description": "分钟" },
+                    "distance": { "type": "number", "description": "公里" }
                   }
                 }
               }
