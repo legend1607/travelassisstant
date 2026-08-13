@@ -1,199 +1,130 @@
-# 小红书调研工作流 (OpenCLI + Chrome CDP)
+# 体验调研工作流（WebSearch + WebFetch 多源聚合）
 
-## 验证状态（2026-08-12）
+## 背景
 
-- **OpenCLI**: v1.8.6 已安装，内置 xiaohongshu 适配器（search/note/comments/feed 等）
-- **Browser Bridge 扩展**: 未连接（沙箱环境限制）
-- **页面可达性**: 搜索页可加载（标题正常），但搜索结果被登录墙拦截（"登录后查看搜索结果"弹窗）
-- **API 可观测性**: 可观察到 `edith.xiaohongshu.com` 的部分 API 调用（config/user/me/search/recommend），但搜索结果数据接口未返回
-- **结论**: 必须使用已登录的 Chrome 浏览器 + OpenCLI Browser Bridge 扩展
+v1.2.0 及之前使用 OpenCLI + Chrome CDP 直连小红书，但需要已登录的浏览器会话。未登录状态下小红书会弹出"登录后查看搜索结果"弹窗，无法获取数据。
 
-## 前提
+v1.3.0 改用 **WebSearch + WebFetch 多源聚合**方案，无需登录，在沙箱环境中验证通过。
 
-`agent-reach` 的小红书 MCP 通道不稳定。稳定方案是 OpenCLI + Chrome CDP。
+## 数据源
 
-## OpenCLI 安装
+| 数据源 | URL 模式 | 提供数据 | 优先级 |
+|--------|----------|----------|--------|
+| 携程旅拍 | `hk.trip.com/moments/detail/{city}-{id}` | 拍照点+摄影技巧+体验描述+季节建议 | 1（最高） |
+| 什么值得买 | `post.m.smzdm.com/p/{id}/` | 详细体验记录+菜品分析+场景推荐 | 2 |
+| 头条 | `m.toutiao.com/group/{id}/` | 深度攻略+景点介绍+实用建议 | 3 |
+| 马蜂窝 | `m.mafengwo.cn/gl/poi/comment.php?id={id}` | 用户评价+体验分享 | 4 |
 
-GitHub: https://github.com/jackwener/OpenCLI
+## 调研流程
 
-```bash
-npm install -g @jackwener/opencli
-```
+### Step 1：WebSearch 搜索体验内容
 
-安装后确认 PATH 能找到它。如果全局 npm 装在 `~/.npm-global/bin`，需要在 `~/.zshenv` 里加：
-
-```bash
-export PATH="$HOME/.npm-global/bin:$PATH"
-```
-
-验证：
-
-```bash
-opencli --version   # 应返回 1.8.0+
-opencli doctor      # 检查 daemon、extension、Chrome 连通性
-```
-
-### Browser Bridge 扩展
-
-OpenCLI 需要一个 Chrome 扩展来桥接浏览器：
-
-1. 从 [GitHub Releases](https://github.com/jackwener/OpenCLI/releases) 下载 `opencli-extension.zip`
-2. 解压到 `~/.opencli/extensions/opencli-extension`
-3. Chrome 打开 `chrome://extensions` → 开启「开发者模式」→ 「加载已解压的扩展程序」→ 选上面的目录
-
-### OpenCLI 内置小红书命令
-
-OpenCLI v1.8.6 自带完整的 xiaohongshu 适配器，支持以下命令：
-
-```bash
-opencli xiaohongshu search '玉ひで 东京' --limit 10 -f json   # 搜索笔记
-opencli xiaohongshu note <note_id> -f json                     # 笔记详情
-opencli xiaohongshu comments <note_id> -f json                 # 笔记评论
-opencli xiaohongshu feed -f json                               # 推荐 Feed
-opencli xiaohongshu whoami                                      # 检查登录状态
-opencli xiaohongshu login                                       # 打开登录页
-```
-
-所有命令标记为 `[cookie]`，需要已登录的浏览器会话。
-
-## 环境路径参考
-
-- `opencli` 可执行文件：`~/.npm-global/bin/opencli`
-- `opencli` 安装目录：`~/.npm-global/lib/node_modules/@jackwener/opencli`
-- CDP 实现：`~/.npm-global/lib/node_modules/@jackwener/opencli/dist/src/browser/cdp.js`
-- Browser Bridge 扩展：`~/.opencli/extensions/opencli-extension`
-
-## 最小复现流程
-
-### Step 1：启动可调试 Chrome
-
-```bash
-'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' \
-  --user-data-dir=/tmp/opencli-chrome-cdp \
-  --profile-directory=Default \
-  --remote-debugging-port=9223 \
-  'https://www.xiaohongshu.com/explore'
-```
-
-用单独的 `user-data-dir`，开 `9223` 调试口，先打开小红书。
-
-### Step 2：CDPBridge 连接
-
-```js
-import { CDPBridge } from '~/.npm-global/lib/node_modules/@jackwener/opencli/dist/src/browser/cdp.js';
-
-const bridge = new CDPBridge();
-const page = await bridge.connect({
-  cdpEndpoint: 'http://127.0.0.1:9223',
-  timeout: 10
-});
-```
-
-### Step 3：搜索 — 直接进路由
-
-**关键：不要模拟输入框。** 小红书前端有双 input、透明 input、联想层、风控逻辑，模拟输入会假成功。
-
-直接导航到搜索结果页：
-
-```js
-await bridge.send('Page.navigate', {
-  url: 'https://www.xiaohongshu.com/search_result?keyword=' + encodeURIComponent(query)
-});
-```
-
-### Step 4：拦截搜索 API
-
-监听网络请求，抓：
+对每个景点/餐厅执行搜索：
 
 ```
-POST https://edith.xiaohongshu.com/api/sns/web/v1/search/notes
+# 景点
+WebSearch: "{景点名} {城市} 拍照 攻略 体验"
+
+# 餐厅
+WebSearch: "{餐厅名} {城市} 体验 拍照 小红书"
 ```
 
-请求体示例：
-```json
-{
-  "keyword": "人形町 玉秀",
-  "page": 1,
-  "page_size": 20,
-  "sort": "general",
-  "note_type": 0
-}
+从搜索结果中识别高价值页面：
+- `hk.trip.com/moments/detail/...` → 携程旅拍（优先抓取）
+- `post.m.smzdm.com/p/...` → 什么值得买体验文（优先抓取）
+- `m.toutiao.com/group/...` → 头条攻略
+
+### Step 2：WebFetch 抓取携程旅拍
+
+对搜索到的携程旅拍 URL 执行 WebFetch，获取：
+
+- **最佳拍照点**（如"鹿苑外围的金色林荫道"、"树影斑驳的白墙"）
+- **摄影技巧**（如"晴天下午3-4点光影效果最好"、"对焦树叶虚化背景"）
+- **季节性建议**（如"9月下旬至10月下旬秋季最佳"）
+- **体验描述**（氛围、人流、感受）
+- **相关游记推荐**（同区域其他景点/餐厅的旅拍）
+
+### Step 3：WebFetch 抓取什么值得买体验文
+
+获取详细体验记录：
+- 菜品逐一分析
+- 场景推荐（适合多人聚餐/单人/情侣）
+- 排队/等待情况
+- 价格明细
+- 个人感受和建议
+
+### Step 4：信号合并
+
+| 数据类型 | 来源 | 用途 |
+|----------|------|------|
+| 拍照点 | 携程旅拍 | 标记地图卡片，推荐拍照位置 |
+| 摄影技巧 | 携程旅拍 | 补充到 desc 字段 |
+| 氛围描述 | 携程旅拍+什么值得买 | 补充到 desc 字段 |
+| 近期体验 | 什么值得买+头条 | 判断是否值得去、是否踩雷 |
+| 季节建议 | 携程旅拍 | 标记天气敏感点 |
+
+### Step 5：推广帖甄别
+
+从携程旅拍/什么值得买中识别：
+
+**推广信号**：
+- 过度美化无缺点
+- 品牌词高频出现
+- 链接导向购买/预订
+- 无个人体验细节
+- 文案模板化
+
+**真实信号**：
+- 有踩雷/排队/价格等真实细节
+- 有主观感受和对比
+- 有实用建议（如"带件外套"、"带透明伞"）
+- 有具体时间/日期信息
+
+在 route-schema.json 中标注 `xhsData.promotionalPostsDetected`（0 = 无推广帖，>0 = 检测到推广帖数量）。
+
+### Step 6：差评筛选
+
+从搜索结果中提取负面信号：
+
+```
+WebSearch: "{景点名/餐厅名} {城市} 踩雷 差评 不推荐"
 ```
 
-返回：笔记 id、xsec_token、标题、作者、点赞、收藏、评论。
+关注：
+- 排队过长（超过用户容忍度）
+- 价格虚高
+- 服务态度差
+- 菜品质量下降（近期差评）
+- 景点维护不佳
+- 人流拥挤（节假日）
 
-第一轮筛选不需要开详情页。搜索前排结果就够判断信号强弱。
-
-### Step 5：详情页提取
-
-搜索结果拿到 `id` + `xsec_token`，拼详情页 URL：
-
-```
-https://www.xiaohongshu.com/explore/<id>?xsec_token=<token>&xsec_source=
-```
-
-DOM 提取：
-
-```js
-document.querySelector('#detail-title')?.innerText     // 标题
-document.querySelector('#detail-desc')?.innerText      // 正文
-document.querySelector('.author-container .username')?.innerText  // 作者
-```
-
-找不到时退回 `document.body.innerText.slice(0, 2000)`。
-
-### Step 6：两段式流程
-
-1. 搜索结果页抓前 10-20 条
-2. 只开最相关的 2-3 条详情页
-
-好处：快、不容易被风控、先判断信号强弱、写进 `.md` 更干净。
-
-## 筛选标准
-
-### 保留（真店信号）
-
-- 店名明确、地址明确、菜品明确
-- 有自己体验
-- 高频词在多条笔记里重复出现
-
-### 不保留
-
-- 泛东京合集里顺手带一句
-- 标题写酒店/散步，正文才顺手提店
-- 明显搬运
-
-### 能帮决策的信息
-
-优先保留：
-- 要不要排队
-- 是主餐还是收尾
-- 更适合白天还是晚上
-- 更像打卡还是更像稳饭
-- 容不容易踩空
-
-不优先：纯情绪表达、漂亮但没用的形容、重复三遍的"氛围很好"
+在 route-schema.json 中标注：
+- `xhsData.negativeRatio`（0.0-1.0，负面信号占比）
+- `xhsData.negativeImpact`（`low` / `medium` / `high`）
 
 ## 写回格式
 
-写回时只留一层结论，不搬笔记原文：
-
-- 店名
-- 一条代表笔记链接
-- 两三句压缩判断
-
-## 搜索建议接口
-
+```json
+{
+  "name": "太阳岛风景区",
+  "type": "spot",
+  "verified": true,
+  "xhsData": {
+    "link": "https://hk.trip.com/moments/detail/harbin-151-137296433",
+    "verdict": "秋季限定的金色林荫道，鹿苑附近是最佳拍照点，晴天下午3-4点光影最好",
+    "photoSpots": ["鹿苑外围金色林荫道", "树影斑驳的白墙", "湖边芦苇荡"],
+    "photoTips": ["晴天下午3-4点光影效果最好", "对焦树叶虚化背景"],
+    "negativeRatio": 0.1,
+    "negativeImpact": "low",
+    "promotionalPostsDetected": 0
+  }
+}
 ```
-GET https://edith.xiaohongshu.com/api/sns/web/v1/search/recommend?keyword=...
-```
-
-能返回联想词。做行程研究价值不大，优先级低。
 
 ## 常见坑
 
-1. **agent-reach ≠ 小红书可用** — 先跑 `agent-reach doctor`，小红书 MCP 没配就别浪费时间
-2. **输入框不好惹** — 搜索结果页路由是更稳入口
-3. **fetch 直接调接口可能被拦** — 返回 `code:300011` 要求切换账号。最稳还是走真实页面 + CDP 抓响应
-4. **搜索结果混地区内容** — 不是噪音，能看出店在片区里的角色，但不能直接当单店口碑
-5. **未登录无数据** — 验证确认，未登录状态下搜索结果被登录墙拦截，API 也不返回业务数据
+- 携程旅拍内容可能季节性较强，注意发布日期与行程日期的匹配
+- 什么值得买的体验文通常质量高但样本量小，不能代表全部
+- 头条文章深度好但可能含广告，注意甄别
+- 搜索结果中可能混入其他城市同名景点，注意用城市名过滤
+- 拍照点建议受天气影响大，结合 AMap Weather 判断
