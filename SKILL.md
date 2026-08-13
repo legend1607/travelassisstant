@@ -1,12 +1,12 @@
 ---
 name: travel-assistant
 description: >
-  四阶段旅行助手：规划行程（AMap 地理编码+路径规划验证）→ 调研餐厅景点（大众点评+小红书+AMap POI）→
+  四阶段旅行助手：规划行程（AMap 地理编码+路径规划验证）→ 调研餐厅景点（WebSearch 多源聚合+AMap POI）→
   构建交互式地图页面（AMap JSAPI 3D）→ 生成路线图图片（AI 生图，可选）。
   使用高德地图 JSAPI v2.0 作为唯一地图引擎，面向国内旅行场景。
   触发词："做个行程"、"行程规划"、"行程地图"、"trip map"、"plan my trip"、"帮我画路线图"、"生成行程封面"。
 license: MIT
-version: 1.2.0
+version: 1.3.0
 homepage: https://github.com/legend1607/travelassisstant
 metadata:
   openclaw:
@@ -27,7 +27,7 @@ metadata:
 
 - [ ] **START**：读取 `~/.travel-assistant/MEMORY.md`（不存在则跳过，不阻塞）
 - [ ] **Phase 1**：输出 route-schema.json + 参考文档
-- [ ] **Phase 2**：尝试调研；若不可用，在行程中标注"未经调研验证"
+- [ ] **Phase 2**：执行多源调研（WebSearch + WebFetch + AMap POI），填充 verified: true
 - [ ] **Phase 3**：生成交互式地图 index.html
 - [ ] **Phase 4**：（可选）用户明确要求才触发
 - [ ] **END**：创建/更新 `~/.travel-assistant/MEMORY.md`
@@ -85,8 +85,6 @@ route-schema.json 中每个 location 应包含 `verified` 字段：
 - `true` — Phase 2 已调研，amap/dianping/xhs 字段已填充
 - `false` — Phase 2 未执行或该点未调研，数据基于通用知识
 
-Phase 2 未执行时，所有 location 的 `verified` 设为 `false`，并在地图卡片上标注"未经调研验证"。
-
 ## Phase 1: Plan — 行程规划 + AMap 验证
 
 读取 `references/trip-planning.md` 获取完整方法论。
@@ -117,46 +115,114 @@ Phase 2 未执行时，所有 location 的 `verified` 设为 `false`，并在地
 - 行程越顺越好，不是越满越好
 - 用户交互遵循四拍格式：Re-ground → Simplify → Recommend → Options
 
-## Phase 2: Research — 调研 + AMap POI
+## Phase 2: Research — 多源调研
 
-### 前提条件
+### 数据源架构（v1.3.0 重构）
 
-大众点评和小红书均需要**已登录的浏览器会话**。未登录状态下：
-- 大众点评会重定向至 `verify.meituan.com` 验证中心（拼图滑块）
-- 小红书会弹出"登录后查看搜索结果"弹窗
+原 OpenCLI + Chrome CDP 方案需已登录浏览器会话，在无登录环境中不可用。v1.3.0 改用 **WebSearch + WebFetch 多源聚合**方案，无需登录，在沙箱环境中验证通过。
 
-使用 OpenCLI + Chrome CDP 连接真实浏览器（已登录态），不要使用 headless 模式。
+| 数据需求 | 数据源 | 获取方式 | 验证状态 |
+|----------|--------|----------|----------|
+| 坐标/地址/电话/营业时间 | AMap PlaceSearch | JSAPI 调用 | ✅ 已验证 |
+| 餐厅评分/口味/环境/服务 | 携程美食（含大众点评数据） | WebSearch + WebFetch | ✅ 已验证 |
+| 餐厅体验/排队/价格/踩雷 | 什么值得买 + 途牛 + 去哪儿 | WebSearch + WebFetch | ✅ 已验证 |
+| 景点氛围/拍照点/体验 | 携程旅拍 + 头条 | WebSearch + WebFetch | ✅ 已验证 |
+| 天气 | AMap Weather | JSAPI 调用 | ✅ 已验证 |
 
-### 降级策略（重要）
+### 调研流程
 
-当 OpenCLI Browser Bridge 未连接或浏览器无登录态时：
+#### Step 1：AMap POI 搜索
 
-1. **不静默跳过** — 明确告知用户"Phase 2 调研未执行"
-2. **标注可信度** — 所有 location 的 `verified` 设为 `false`
-3. **地图标注** — 在 index.html 卡片上显示"⚠ 未经调研验证"标签
-4. **建议替代** — 告知用户可在手机上自行搜索验证，或后续补充调研
+```javascript
+// 按区域搜索餐厅/景点
+new AMap.PlaceSearch({
+  type: '餐饮服务|风景名胜',
+  pageSize: 10,
+  city: '城市名'
+}).searchNearBy(keyword, center, radius, callback);
+```
 
-### 核心流程
+获取：坐标、电话、营业时间、基础评分。
 
-1. **AMap POI 搜索** — `AMap.PlaceSearch.searchNearBy` 按区域搜索餐厅/景点
-2. **AMap 输入提示** — `AMap.AutoComplete.search` 补全地址和坐标
-3. **AMap 天气查询** — `AMap.Weather.getLive/getForecast` 标记天气敏感点
-4. **大众点评调研** — OpenCLI 获取口味/排队/踩雷信号（需登录态）
-5. **小红书调研** — Chrome CDP 获取氛围/体验/拍照信号（需登录态）
-6. **信号合并** — AMap 结构化数据 + 大众点评餐饮判断 + 小红书体验补充
+#### Step 2：WebSearch 搜索餐厅评价
 
-读取 `references/dianping-research.md` 获取大众点评工作流（含刷好评识别）。
-读取 `references/xhs-research.md` 获取小红书工作流（含差评筛选+推广帖甄别）。
+对每个餐厅执行：
 
-### 信号合并优先级
+```
+WebSearch: "{餐厅名} {城市} 评价 排队 好吃吗"
+```
 
-- 坐标/地址/电话/营业时间 → AMap PlaceSearch
-- 口味/排队/踩雷/性价比 → 大众点评（注意刷好评识别）
-- 氛围/拍照/近期体验 → 小红书（注意推广帖甄别+差评筛选）
+优先结果：
+- `you.ctrip.com/food/...` — 携程美食页（含大众点评数据，评分+口味+环境+服务+用户点评）
+- `post.m.smzdm.com/p/...` — 什么值得买（详细体验+菜品分析+排队+价格）
+- `m.tuniu.com/restaurant/...` — 途牛（用户评价）
+- `touch.go.qunar.com/poi/...` — 去哪儿（餐厅基本信息）
 
-### 更新 route-schema.json
+#### Step 3：WebFetch 抓取详情
+
+对搜索到的携程美食页面执行 WebFetch，获取：
+- 总评分（如 4.6/5）
+- 子评分：口味、环境、服务
+- 人均消费
+- 点评数量
+- 特色菜品列表
+- 用户点评原文（含排队、踩雷信号）
+
+#### Step 4：WebSearch 搜索体验内容
+
+对每个景点/餐厅执行：
+
+```
+WebSearch: "{景点名} {城市} 拍照 攻略 体验"
+```
+
+优先结果：
+- `hk.trip.com/moments/detail/...` — 携程旅拍（拍照点+摄影技巧+体验描述）
+- `m.toutiao.com/group/...` — 头条（深度攻略）
+- `post.m.smzdm.com/p/...` — 什么值得买（体验记录）
+
+#### Step 5：WebFetch 抓取体验内容
+
+对搜索到的携程旅拍页面执行 WebFetch，获取：
+- 最佳拍照点
+- 摄影技巧
+- 季节性建议
+- 相关游记推荐
+
+#### Step 6：信号合并
+
+按优先级合并数据：
+
+| 数据类型 | 优先来源 | 备选来源 |
+|----------|----------|----------|
+| 坐标/地址/电话 | AMap PlaceSearch | 携程美食页 |
+| 评分（总分+子分） | 携程美食（含大众点评） | 途牛/去哪儿 |
+| 排队/踩雷/价格 | 什么值得买用户体验 | 携程用户点评 |
+| 氛围/拍照/近期体验 | 携程旅拍 | 头条/什么值得买 |
+| 天气敏感 | AMap Weather | — |
+
+#### Step 7：更新 route-schema.json
 
 填充每个 location 的 `amap`、`dianping`、`xhs` 字段，并将 `verified` 设为 `true`。
+
+### 刷好评识别
+
+从携程用户点评中识别：
+
+- **可疑信号**：多条点评日期集中、文案雷同、只评满分无细节、新账号集中好评
+- **可信信号**：点评跨度长、有具体菜品/排队细节、有差评存在、老账号点评
+
+在 route-schema.json 中标注 `dianping.reviewCredibility`：`high` / `medium` / `low-suspect`
+
+### 推广帖甄别
+
+从携程旅拍/什么值得买中识别：
+
+- **推广信号**：过度美化无缺点、品牌词高频、链接导向购买、无个人体验细节
+- **真实信号**：有踩雷/排队/价格等真实细节、有主观感受、有实用建议
+
+读取 `references/dianping-research.md` 获取完整工作流。
+读取 `references/xhs-research.md` 获取完整工作流。
 
 ## Phase 3: Build — AMap JSAPI 交互式地图
 
@@ -177,13 +243,10 @@ Payment chip values: `1` = 已确认（绿色）, `0.5` = 不确定（橙色）,
 **方式一：GitHub Pages（推荐，手机可直接访问）**
 
 ```bash
-# 推送到 GitHub 仓库
 git init && git add . && git commit -m "trip map"
 gh repo create REPO --public --source=. --push
-
-# 开启 GitHub Pages
 gh api repos/:owner/:repo/pages -X POST -f "source[branch]=main" -f "source[path]=/"
-# 等待几分钟后访问 https://<username>.github.io/<repo>/
+# 访问 https://<username>.github.io/<repo>/
 ```
 
 **方式二：本地服务器（仅本机访问）**
@@ -191,7 +254,6 @@ gh api repos/:owner/:repo/pages -X POST -f "source[branch]=main" -f "source[path
 ```bash
 python3 -m http.server 8080
 # 访问 http://localhost:8080/index.html
-# 注意：沙箱环境中手机无法通过 localhost 访问
 ```
 
 ## Phase 4: Visualize — AI 生图（可选）
@@ -210,15 +272,15 @@ python3 -m http.server 8080
 | 工具 | 用途 | 安装 | 验证状态 |
 |------|------|------|----------|
 | AMap JSAPI v2.0 | 地图渲染 + 地理服务 | loader.js CDN，需 API Key | ✅ 已验证 |
-| OpenCLI v1.8.6+ | 大众点评 + 小红书调研 | `npm install -g @jackwener/opencli` | ✅ 已安装，需浏览器扩展 |
-| Chrome/Chromium | 浏览器 + 远程调试 | 已有 | ⚠️ 需登录态 |
+| WebSearch | 餐厅/景点评价搜索 | 内置 | ✅ 已验证 |
+| WebFetch | 详情页抓取 | 内置 | ✅ 已验证 |
 | AI 生图工具 | Phase 4 路线图生成 | 内置 | 待验证 |
 
 ## Resources
 
 - `references/trip-planning.md` — 行程规划方法论、输入/输出模板、选点原则、输出检查清单
-- `references/dianping-research.md` — 大众点评工作流、刷好评识别
-- `references/xhs-research.md` — 小红书工作流、差评筛选、推广帖甄别
+- `references/dianping-research.md` — 多源餐厅调研工作流（携程+什么值得买+途牛）
+- `references/xhs-research.md` — 多源体验调研工作流（携程旅拍+头条+什么值得买）
 - `references/amap-services.md` — 高德服务集成指南
 - `references/route-visualization.md` — 路线图生成方法论
 - `references/style-presets.md` — 视觉风格预设
