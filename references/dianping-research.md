@@ -1,10 +1,25 @@
-# 餐厅调研工作流（WebSearch + WebFetch 多源聚合）
+# 餐厅调研工作流（双轨：WebSearch 聚合 / OpenCLI 直连）
 
-## 背景
+## 双轨方案
 
-v1.2.0 及之前使用 OpenCLI + Chrome CDP 直连大众点评，但需要已登录的浏览器会话。未登录状态下大众点评会重定向至 `verify.meituan.com` 验证中心（拼图滑块），无法获取数据。
+Phase 2 提供两条调研路径，根据环境自动选择：
 
-v1.3.0 改用 **WebSearch + WebFetch 多源聚合**方案，无需登录，在沙箱环境中验证通过。
+| 路径 | 方案 | 前提条件 | 数据质量 | 适用环境 |
+|------|------|----------|----------|----------|
+| A（主） | WebSearch + WebFetch 多源聚合 | 无 | 中（聚合数据） | 沙箱/无登录环境 |
+| B（高级） | OpenCLI dianping adapter 直连 | 已登录 Chrome + Browser Bridge 扩展 | 高（原始店铺数据） | 本地已登录浏览器 |
+
+### 路径选择逻辑
+
+```
+if (已登录 Chrome + OpenCLI 可用) {
+  → 路径 B：opencli dianping search/shop 直连
+} else {
+  → 路径 A：WebSearch + WebFetch 多源聚合
+}
+```
+
+## 路径 A：WebSearch + WebFetch 多源聚合
 
 ## 数据源
 
@@ -140,3 +155,47 @@ WebSearch: "{餐厅名} {城市} 评价 排队 好吃吗"
 - 节假日排队时间可能翻倍，用户点评中的排队信息要结合季节判断
 - 携程美食的数据可能不是最新的，注意点评日期
 - 人均消费受点菜影响大，取中位数而非平均值
+
+## 路径 B：OpenCLI 直连大众点评（需已登录 Chrome）
+
+### 2026-08-13 本地实测验证结果
+
+在本地 Windows + 已登录 Chrome 环境中使用 OpenCLI 完成了完整测试：
+
+| 测试项 | 结果 | 说明 |
+|--------|------|------|
+| OpenCLI | ✅ v1.8.6，daemon 端口 19825 | `opencli doctor` 全绿 |
+| Browser Bridge 扩展 | ✅ v1.0.22 | `~/.opencli/extensions`，Chrome 开发者模式加载 |
+| 登录态 | ✅ | 未登录时报 `AUTH_REQUIRED`（exit 77，验证码/需登录），登录后通过 |
+| `dianping search` | ✅ | 返回 shop_id/rating/reviews/price/cuisine/district |
+| `dianping shop` | ✅ | 返回 taste/environment/service/hours/address/subway/features |
+| 数字 cityId | ✅ | 必须显式传，省略时 cityId=0 被重定向到首页 |
+
+### 命令
+
+```bash
+# 搜索（必须传数字 cityId；哈尔滨=79）
+opencli dianping search "中央大街 火锅" --city 79 --limit 3 -f json
+
+# 店铺详情
+opencli dianping shop <shop_id> -f json
+```
+
+### 实测注意事项
+
+- **必须传数字 cityId，不要省略 `--city`**：省略时 adapter 用 `search/keyword/0/...`（cityId=0），当前大众点评会把该 URL 重定向到首页，报 `COMMAND_EXEC`
+- **拼音城市别用 harbin**：`/harbin` 拼音路由已失效（重定向到 citylist），哈尔滨正确拼音是 `haerbin`，cityId=79
+- **解析其他城市 cityId**：`dianping.com/citylist` 拿拼音 → `dianping.com/<拼音>` 提取页面上 `/search/keyword/{id}/` 链接里的数字
+- **Windows**：敲 `opencli` 前先 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`，否则 `.ps1` 被策略拦截
+- **未登录/被验证码拦截**：报 `AUTH_REQUIRED`，打开 `verify.meituan.com` 链接手动过验证码，登录后重试
+
+### 信号合并（路径 B 直连字段）
+
+| 字段 | 判断标准 |
+|------|----------|
+| rating（综合分） | ≥4.5 为优，4.0-4.5 为良，<4.0 需谨慎 |
+| reviews（评价量） | 太少说明信号弱 |
+| taste/environment/service | 子分拆解综合分 |
+| price（人均） | 对照餐饮预算 |
+| cuisine/district | 是否落在当天区域 |
+| hours/subway/features | 营业时间、交通、有无包间/宝宝椅 |

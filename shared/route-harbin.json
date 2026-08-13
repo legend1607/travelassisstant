@@ -1,0 +1,497 @@
+{
+  "trip": {
+    "title": "哈尔滨独行 · 国庆6日",
+    "days": 6,
+    "startDate": "2026-10-01",
+    "travelers": {
+      "adults": 1,
+      "children": 0,
+      "seniors": 0
+    },
+    "transportMode": "transit",
+    "pace": "standard"
+  },
+  "hotel": {
+    "name": "待定（建议道里区中央大街附近经济型酒店）",
+    "address": "哈尔滨市道里区中央大街附近",
+    "lng": 126.6304,
+    "lat": 45.7725
+  },
+  "days": [
+    {
+      "day": 1,
+      "date": "2026-10-01",
+      "area": "道里区·中央大街",
+      "weather": {
+        "condition": "晴/多云",
+        "temp": "5-12°C",
+        "rainfall": "无"
+      },
+      "locations": [
+        {
+          "name": "哈尔滨西站",
+          "type": "transport",
+          "lng": 126.5687,
+          "lat": 45.7337,
+          "time": "11:44",
+          "desc": "G705到达，地铁3号线转1号线至市区",
+          "verified": true,
+          "amap": { "tel": "12306", "openHours": "全天" }
+        },
+        {
+          "name": "中央大街",
+          "type": "spot",
+          "lng": 126.6304,
+          "lat": 45.7725,
+          "time": "14:00",
+          "desc": "亚洲最长步行街，70+栋欧式建筑，百年面包石路面。从经纬街走到防洪纪念塔约1.4km",
+          "verified": true,
+          "amap": { "rating": 4.8, "tel": "", "openHours": "全天24小时" }
+        },
+        {
+          "name": "防洪纪念塔",
+          "type": "spot",
+          "lng": 126.6266,
+          "lat": 45.7785,
+          "time": "16:00",
+          "desc": "中央大街北端尽头，松花江畔标志",
+          "verified": true,
+          "amap": { "rating": 4.6, "tel": "", "openHours": "全天" }
+        },
+        {
+          "name": "松花江畔",
+          "type": "spot",
+          "lng": 126.6250,
+          "lat": 45.7800,
+          "time": "16:10",
+          "desc": "江边散步，10月傍晚风大需厚外套",
+          "verified": true,
+          "amap": { "rating": 4.7, "tel": "", "openHours": "全天" }
+        },
+        {
+          "name": "晚餐·同合居·非遗东北菜(中央大街店)",
+          "type": "food",
+          "lng": 126.6290,
+          "lat": 45.7715,
+          "time": "17:30",
+          "desc": "非遗东北菜，锅包肉/地三鲜，菜量大。霞曼街松雷国际商厦2F，距地铁2号线中央大街站1口步行270m",
+          "budget": "人均59",
+          "pay": 1,
+          "verified": true,
+          "dianping": {
+            "taste": 4.7,
+            "verdict": "大众点评4.7分/9659评，口味环境服务均4.7，非遗招牌，性价比高于周边网红店",
+            "reviewCredibility": "high"
+          }
+        },
+        {
+          "name": "圣索菲亚教堂",
+          "type": "spot",
+          "lng": 126.6315,
+          "lat": 45.7746,
+          "time": "19:00",
+          "desc": "亮灯后最佳拍摄时间，洋葱头穹顶夜景。远东最大东正教堂，拜占庭风格",
+          "verified": true,
+          "amap": { "rating": 4.8, "tel": "0451-84686760", "openHours": "外部全天，内部08:30-17:00" }
+        },
+        {
+          "name": "中央大街夜景",
+          "type": "spot",
+          "lng": 126.6304,
+          "lat": 45.7725,
+          "time": "20:00",
+          "desc": "夜间灯光氛围与白天完全不同，散步回酒店",
+          "verified": true
+        }
+      ],
+      "route": {
+        "segments": [
+          { "from": "哈尔滨西站", "to": "中央大街", "mode": "transit", "duration": 40, "distance": 12 },
+          { "from": "中央大街", "to": "防洪纪念塔", "mode": "walking", "duration": 5, "distance": 0.5 },
+          { "from": "防洪纪念塔", "to": "晚餐", "mode": "walking", "duration": 5, "distance": 0.4 },
+          { "from": "晚餐", "to": "圣索菲亚教堂", "mode": "walking", "duration": 8, "distance": 0.6 }
+        ]
+      }
+    },
+    {
+      "day": 2,
+      "date": "2026-10-02",
+      "area": "香坊区·伏尔加庄园",
+      "weather": {
+        "condition": "晴/多云",
+        "temp": "5-12°C",
+        "rainfall": "无"
+      },
+      "locations": [
+        {
+          "name": "伏尔加庄园",
+          "type": "spot",
+          "lng": 126.8730,
+          "lat": 45.7160,
+          "time": "10:00",
+          "desc": "俄式木建筑群+秋色+湖景。伏尔加河畔复刻建筑，拍照天堂。重点：圣尼古拉大教堂、米尼阿久尔餐厅、小白桦餐厅",
+          "budget": "门票约¥150",
+          "pay": 1,
+          "verified": true,
+          "reserve": "https://www.volga-manor.com",
+          "amap": { "rating": 4.5, "tel": "0451-51960333", "openHours": "09:00-17:00" }
+        },
+        {
+          "name": "午餐·庄园内简餐",
+          "type": "food",
+          "lng": 126.8730,
+          "lat": 45.7160,
+          "time": "13:00",
+          "desc": "庄园内餐厅简餐（米尼阿久尔/小白桦餐厅）",
+          "budget": "人均40",
+          "verified": true
+        },
+        {
+          "name": "晚餐·柴火老院铁锅炖(中央大街旗舰店)",
+          "type": "food",
+          "lng": 126.6340,
+          "lat": 45.7760,
+          "time": "18:30",
+          "desc": "大鹅锅/排骨锅，柴火铁锅炖。通江街165号，10:00-23:00，距地铁3号线友谊宫站2口步行160m",
+          "budget": "人均64",
+          "pay": 1,
+          "verified": true,
+          "dianping": {
+            "taste": 4.8,
+            "verdict": "大众点评4.9分/2445评，环境服务4.9，有包厢可预订，独行建议预订小锅",
+            "reviewCredibility": "high"
+          }
+        },
+        {
+          "name": "松花江畔夜景",
+          "type": "spot",
+          "lng": 126.6250,
+          "lat": 45.7800,
+          "time": "20:00",
+          "desc": "江桥灯光+水面倒影",
+          "verified": true
+        }
+      ],
+      "route": {
+        "segments": [
+          { "from": "酒店", "to": "伏尔加庄园", "mode": "transit", "duration": 60, "distance": 30 },
+          { "from": "伏尔加庄园", "to": "晚餐", "mode": "transit", "duration": 60, "distance": 30 }
+        ]
+      }
+    },
+    {
+      "day": 3,
+      "date": "2026-10-03",
+      "area": "松北区·温泉",
+      "weather": {
+        "condition": "晴/多云",
+        "temp": "5-12°C",
+        "rainfall": "无"
+      },
+      "locations": [
+        {
+          "name": "枫叶小镇温泉度假区",
+          "type": "spot",
+          "lng": 126.5600,
+          "lat": 45.8100,
+          "time": "09:30",
+          "desc": "松北区，室内外温泉池，解乏放松。国庆建议9:00开门即入避开人流",
+          "budget": "门票约¥168",
+          "pay": 1,
+          "verified": true,
+          "amap": { "rating": 4.6, "tel": "0451-51017777", "openHours": "周一-四09:00-21:00, 周五-日09:00-22:00" }
+        },
+        {
+          "name": "午餐·温泉区内",
+          "type": "food",
+          "lng": 126.5600,
+          "lat": 45.8100,
+          "time": "12:00",
+          "desc": "温泉区内简餐",
+          "budget": "人均40",
+          "verified": true
+        },
+        {
+          "name": "晚餐·老厨家(中央大街西七道街店)",
+          "type": "food",
+          "lng": 126.6305,
+          "lat": 45.7705,
+          "time": "19:00",
+          "desc": "锅包肉发源地，锅包肉/地三鲜/酱骨架。西七道街55-1号巴拉斯美食城三楼，距地铁2号线中央大街站680m",
+          "budget": "人均69",
+          "pay": 1,
+          "verified": true,
+          "dianping": {
+            "taste": 4.3,
+            "verdict": "锅包肉创始人老店，3.2万评口碑稳，但评分4.3排队久，高峰期建议错峰",
+            "reviewCredibility": "high"
+          }
+        }
+      ],
+      "route": {
+        "segments": [
+          { "from": "酒店", "to": "枫叶小镇温泉", "mode": "transit", "duration": 40, "distance": 15 },
+          { "from": "枫叶小镇温泉", "to": "晚餐", "mode": "transit", "duration": 40, "distance": 15 }
+        ]
+      }
+    },
+    {
+      "day": 4,
+      "date": "2026-10-04",
+      "area": "松北区·太阳岛+大剧院",
+      "weather": {
+        "condition": "晴/多云",
+        "temp": "5-12°C",
+        "rainfall": "无"
+      },
+      "locations": [
+        {
+          "name": "太阳岛公园",
+          "type": "spot",
+          "lng": 126.5830,
+          "lat": 45.8030,
+          "time": "09:00",
+          "desc": "免费·秋季散步，松花江上岛屿公园。10月无花海但有秋色",
+          "verified": true,
+          "amap": { "rating": 4.6, "tel": "0451-88192966", "openHours": "08:30-17:00" }
+        },
+        {
+          "name": "午餐·六泰居·尔滨地标东北菜(松北店)",
+          "type": "food",
+          "lng": 126.5750,
+          "lat": 45.8050,
+          "time": "12:00",
+          "desc": "松北区世茂大道120号，本地地标东北菜，有大桌包厢/免费停车",
+          "budget": "人均57",
+          "pay": 1,
+          "verified": true,
+          "dianping": {
+            "taste": 4.7,
+            "verdict": "大众点评4.7分/1876评，松北区口碑第一梯队，环境服务4.7",
+            "reviewCredibility": "high"
+          }
+        },
+        {
+          "name": "哈尔滨大剧院",
+          "type": "spot",
+          "lng": 126.6070,
+          "lat": 45.8100,
+          "time": "14:00",
+          "desc": "建筑摄影重头。曲面titanium屋顶，依水而建。可尝试参观内部（如有演出票更佳）",
+          "verified": true,
+          "amap": { "rating": 4.7, "tel": "0451-58951888", "openHours": "演出日开放" }
+        },
+        {
+          "name": "大剧院外围江畔",
+          "type": "spot",
+          "lng": 126.6070,
+          "lat": 45.8110,
+          "time": "16:00",
+          "desc": "建筑与水面倒影，下午光线适合拍照",
+          "verified": true
+        },
+        {
+          "name": "晚餐·同合居·非遗东北菜(万象汇店)",
+          "type": "food",
+          "lng": 126.5900,
+          "lat": 45.8080,
+          "time": "18:00",
+          "desc": "松北世茂大道万象汇内，非遗东北菜连锁，距大剧院近",
+          "budget": "人均57",
+          "pay": 1,
+          "verified": true,
+          "dianping": {
+            "taste": 4.5,
+            "verdict": "大众点评4.5分/1441评，与Day1同品牌，松北就近替代首选",
+            "reviewCredibility": "high"
+          }
+        },
+        {
+          "name": "大剧院夜景",
+          "type": "spot",
+          "lng": 126.6070,
+          "lat": 45.8100,
+          "time": "19:30",
+          "desc": "夜间灯光亮起，建筑轮廓+水面倒影",
+          "verified": true
+        }
+      ],
+      "route": {
+        "segments": [
+          { "from": "酒店", "to": "太阳岛", "mode": "transit", "duration": 30, "distance": 10 },
+          { "from": "太阳岛", "to": "哈尔滨大剧院", "mode": "transit", "duration": 15, "distance": 4 },
+          { "from": "大剧院", "to": "晚餐", "mode": "walking", "duration": 10, "distance": 0.8 }
+        ]
+      }
+    },
+    {
+      "day": 5,
+      "date": "2026-10-05",
+      "area": "道里/道外/南岗·老城建筑",
+      "weather": {
+        "condition": "晴/多云",
+        "temp": "5-12°C",
+        "rainfall": "无"
+      },
+      "locations": [
+        {
+          "name": "圣索菲亚教堂（内部）",
+          "type": "spot",
+          "lng": 126.6315,
+          "lat": 45.7746,
+          "time": "09:00",
+          "desc": "白天内部参观，拜占庭风格，远东最大东正教堂",
+          "budget": "门票约¥20",
+          "pay": 1,
+          "verified": true,
+          "amap": { "rating": 4.8, "tel": "0451-84686760", "openHours": "08:30-17:00" }
+        },
+        {
+          "name": "果戈里大街",
+          "type": "spot",
+          "lng": 126.6373,
+          "lat": 45.7670,
+          "time": "10:30",
+          "desc": "免费。俄式风情街，秋林公司（买红肠/大列巴）",
+          "verified": true,
+          "amap": { "rating": 4.5, "tel": "", "openHours": "全天" }
+        },
+        {
+          "name": "午餐·老昌春饼(果戈里大街店)",
+          "type": "food",
+          "lng": 126.6370,
+          "lat": 45.7660,
+          "time": "12:00",
+          "desc": "东北春饼家常菜，果戈里大街110号(近革新街)，距地铁2号线工人文化宫站580m",
+          "budget": "人均51",
+          "pay": 1,
+          "verified": true,
+          "dianping": {
+            "taste": 4.7,
+            "verdict": "大众点评4.7分/2462评，哈尔滨春饼老字号，环境服务4.7，适合果戈里中途就餐",
+            "reviewCredibility": "high"
+          }
+        },
+        {
+          "name": "老道外·中华巴洛克",
+          "type": "spot",
+          "lng": 126.6490,
+          "lat": 45.7830,
+          "time": "14:00",
+          "desc": "免费。中西合璧建筑群，全国最大的巴洛克建筑街区。拍照佳",
+          "verified": true,
+          "amap": { "rating": 4.6, "tel": "", "openHours": "全天" }
+        },
+        {
+          "name": "龙塔",
+          "type": "spot",
+          "lng": 126.6685,
+          "lat": 45.7600,
+          "time": "16:30",
+          "desc": "180m观景台，俯瞰全城。日落前到，工作日人流少",
+          "budget": "门票约¥150",
+          "pay": 1,
+          "verified": true,
+          "amap": { "rating": 4.5, "tel": "0451-51826888", "openHours": "09:00-21:00" }
+        },
+        {
+          "name": "晚餐·宴宾楼·中华老字号(太古店)",
+          "type": "food",
+          "lng": 126.6540,
+          "lat": 45.7810,
+          "time": "18:30",
+          "desc": "老道外中华老字号，太古街291号，距地铁清真寺站720m，东北老菜+小吃",
+          "budget": "人均50",
+          "pay": 1,
+          "verified": true,
+          "dianping": {
+            "taste": 4.7,
+            "verdict": "大众点评4.8分/5320评，环境服务4.8，道外老字号性价比之选",
+            "reviewCredibility": "high"
+          }
+        },
+        {
+          "name": "城市夜景",
+          "type": "spot",
+          "lng": 126.6685,
+          "lat": 45.7600,
+          "time": "20:00",
+          "desc": "龙塔夜景或返程途中拍城市灯光",
+          "verified": true
+        }
+      ],
+      "route": {
+        "segments": [
+          { "from": "酒店", "to": "圣索菲亚教堂", "mode": "walking", "duration": 5, "distance": 0.3 },
+          { "from": "圣索菲亚教堂", "to": "果戈里大街", "mode": "walking", "duration": 12, "distance": 0.9 },
+          { "from": "果戈里大街", "to": "老道外", "mode": "transit", "duration": 15, "distance": 3 },
+          { "from": "老道外", "to": "龙塔", "mode": "transit", "duration": 20, "distance": 5 }
+        ]
+      }
+    },
+    {
+      "day": 6,
+      "date": "2026-10-06",
+      "area": "道里区·补漏+返程",
+      "weather": {
+        "condition": "晴/多云",
+        "temp": "5-12°C",
+        "rainfall": "无"
+      },
+      "locations": [
+        {
+          "name": "秋林公司",
+          "type": "spot",
+          "lng": 126.6360,
+          "lat": 45.7680,
+          "time": "09:30",
+          "desc": "买特产：红肠、大列巴、格瓦斯",
+          "verified": true,
+          "amap": { "rating": 4.6, "tel": "0451-53644643", "openHours": "09:00-21:00" }
+        },
+        {
+          "name": "中央大街/索菲亚广场",
+          "type": "spot",
+          "lng": 126.6310,
+          "lat": 45.7730,
+          "time": "10:30",
+          "desc": "补拍白天照片，逛没逛完的店",
+          "verified": true
+        },
+        {
+          "name": "午餐·133下饭菜(百盛广场店)",
+          "type": "food",
+          "lng": 126.6320,
+          "lat": 45.7760,
+          "time": "12:00",
+          "desc": "百盛购物中心负1楼，下饭菜/快餐简餐，距地铁3号线友谊宫站530m",
+          "budget": "人均30",
+          "pay": 1,
+          "verified": true,
+          "dianping": {
+            "taste": 4.1,
+            "verdict": "大众点评4.2分/528评，人均30的快餐档，回程前简单解决",
+            "reviewCredibility": "high"
+          }
+        },
+        {
+          "name": "哈尔滨西站",
+          "type": "transport",
+          "lng": 126.5687,
+          "lat": 45.7337,
+          "time": "16:13",
+          "desc": "G725发车，3h36m，¥403.5二等座，19:49到达大连北",
+          "verified": true,
+          "amap": { "tel": "12306", "openHours": "全天" }
+        }
+      ],
+      "route": {
+        "segments": [
+          { "from": "酒店", "to": "秋林公司", "mode": "walking", "duration": 10, "distance": 0.7 },
+          { "from": "秋林公司", "to": "中央大街", "mode": "walking", "duration": 8, "distance": 0.5 },
+          { "from": "酒店", "to": "哈尔滨西站", "mode": "transit", "duration": 50, "distance": 12 }
+        ]
+      }
+    }
+  ]
+}

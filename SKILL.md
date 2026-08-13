@@ -135,14 +135,21 @@ route-schema.json 中每个 location 应包含 `verified` 字段：
 
 | 平台 | 直连状态 | 拦截方式 | 修复方案 |
 |------|----------|----------|----------|
-| 大众点评 (PC/移动) | ❌ 不可用 | 美团验证中心（拼图滑块+设备指纹） | 携程美食（含大众点评数据） |
-| 小红书 (未登录) | ❌ search/notes 不触发 | 登录弹窗，前端不调用搜索 API | 路径 A: WebSearch / 路径 B: CDP 连已登录 Chrome |
+| 大众点评 (PC) | ✅ 可用（已登录 + OpenCLI） | OpenCLI dianping adapter | 未登录 → 美团验证中心（拼图滑块）；登录后必须传数字 cityId（哈尔滨=79） |
+| 小红书 | ✅ 可用（已登录 + OpenCLI） | OpenCLI xiaohongshu adapter | 未登录 → 登录墙，search/notes 不触发；登录后 `whoami`/`search` 实测通过 |
 
-**2026-08-13 CDP 测试验证**：
+**2026-08-13 CDP 测试验证（沙箱·未登录）**：
 - ✅ CDP 拦截技术完全可行（成功拦截 66 个 API、获取 42 个响应体）
 - ✅ `search/recommend` API 无需登录可用（返回搜索联想词）
 - ❌ `search/notes` API 需登录态 — 前端检测未登录后弹出登录弹窗，不调用搜索 API
 - ✅ 连接已登录的 Chrome（使用用户 user-data-dir）即可拦截 search/notes
+
+**2026-08-13 本地实测（已登录 Chrome + OpenCLI v1.8.6）**：
+- ✅ `opencli doctor` 全绿（daemon 19825 + Browser Bridge 扩展 v1.0.22 已连接）
+- ✅ `opencli xiaohongshu whoami`（logged_in: true）/ `search` 返回笔记（rank/author/likes/带 xsec_token 的 url）
+- ✅ `opencli dianping search "中央大街 火锅" --city 79` 返回 shop_id/rating/reviews/price/cuisine/district
+- ✅ `opencli dianping shop <id>` 返回 taste/environment/service/hours/address/subway/features
+- ⚠️ dianping 省略 `--city` 时 cityId=0 会被重定向到首页（必传数字 cityId）
 
 读取 `references/dianping-research.md` 获取餐厅调研完整工作流。
 读取 `references/xhs-research.md` 获取体验调研双轨方案完整细节。
@@ -181,7 +188,8 @@ python3 -m http.server 8080
 | AMap JSAPI v2.0 | 地图渲染 + 地理服务 | ✅ 已验证 |
 | WebSearch | 餐厅/景点/交通搜索 | ✅ 已验证 |
 | WebFetch | 详情页/车次/航班抓取 | ✅ 已验证 |
-| Puppeteer + CDP | 小红书 API 拦截（路径 B） | ✅ 技术可行，需已登录 Chrome |
+| OpenCLI v1.8.6 | 大众点评 + 小红书直连（路径 B） | ✅ 已验证（需已登录 Chrome + Browser Bridge 扩展） |
+| Puppeteer + CDP | 小红书 API 拦截（路径 B 备选） | ✅ 技术可行，需已登录 Chrome |
 | AI 生图工具 | Phase 4 路线图生成 | 待验证 |
 
 ## Resources

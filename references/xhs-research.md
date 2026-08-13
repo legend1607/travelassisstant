@@ -12,8 +12,10 @@ Phase 2 提供两条调研路径，根据环境自动选择：
 ### 路径选择逻辑
 
 ```
-if (Chrome CDP 可用 && user/me 返回 guest=false) {
-  → 路径 B：CDP 直连拦截 search/notes API
+if (已登录 Chrome + OpenCLI 可用) {
+  → 路径 B：opencli xiaohongshu search（CDP 直连拦截 search/notes API）
+} else if (CDP 可达 && user/me 返回 guest=false) {
+  → 路径 B：裸 Puppeteer CDP 拦截
 } else {
   → 路径 A：WebSearch + WebFetch 多源聚合
 }
@@ -58,7 +60,27 @@ if (Chrome CDP 可用 && user/me 返回 guest=false) {
 
 ## 路径 B：CDP 直连拦截 API（需已登录 Chrome）
 
-### 2026-08-13 实测验证结果
+### 2026-08-13 本地实测（OpenCLI adapter，已登录 Chrome）✅ 全通
+
+在本地 Windows 环境中使用 **OpenCLI v1.8.6 内置 xiaohongshu adapter**（比裸 Puppeteer CDP 更省事）完成实测：
+
+```bash
+opencli xiaohongshu whoami
+# → logged_in: true, username: 高乐高高
+
+opencli xiaohongshu search "哈尔滨 中央大街 美食" --limit 5 -f json
+# → 返回 rank/author/likes/title/url(带 xsec_token)/published_at
+```
+
+| 测试项 | 结果 |
+|--------|------|
+| 登录态检测 | ✅ `whoami` 返回 logged_in: true |
+| 搜索笔记 | ✅ 返回带 xsec_token 的笔记链接（可直接进详情页） |
+| 前提 | 已登录 Chrome + Browser Bridge 扩展 v1.0.22 + `opencli doctor` 全绿 |
+
+**要点**：OpenCLI 的 xiaohongshu adapter 底层就是 CDP 走真实页面，绕过了登录墙。登录态是唯一硬前提——`opencli xiaohongshu search` 全部命令标记 `[cookie]`。
+
+### 2026-08-13 CDP 测试验证结果（沙箱·未登录）
 
 在沙箱环境中使用 Puppeteer + CDP 进行了完整测试，结果如下：
 
@@ -294,3 +316,4 @@ await page.goto(`https://www.xiaohongshu.com/search_result?keyword=${keyword}`, 
 6. **不甄别推广帖** — 推广帖会严重扭曲评价，必须先排除再计算差评占比
 7. **只看正面笔记** — 差评笔记往往更有参考价值，必须主动搜索
 8. **沙箱环境限制** — 在沙箱中 Chrome 可以启动并连接 CDP，但用户无法扫码登录。路径 B 仅适用于本地已登录 Chrome 环境
+9. **OpenCLI 是路径 B 的最简实现** — 裸 CDP 需自己写拦截逻辑；OpenCLI 的 `xiaohongshu search` 已封装好，Windows 上记得先 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`

@@ -16,11 +16,12 @@ SKILL.md - Agent 技能入口，定义触发条件、执行检查清单、共享
 - AMap 是唯一地图引擎
 - env.js 已 gitignore，使用 env.example.js 作为模板
 - Phase 1 包含交通查询：携程 WebSearch+WebFetch 获取火车车次和航班信息
-- Phase 2 双轨：路径 A（WebSearch 多源聚合，无需登录）/ 路径 B（CDP 拦截小红书 API，需已登录 Chrome）
-- 大众点评直连不可修复（美团验证中心），使用携程美食替代（含大众点评数据）
+- Phase 2 双轨：路径 A（WebSearch 多源聚合，无需登录）/ 路径 B（CDP 拦截小红书 API + OpenCLI adapter，需已登录 Chrome）
+- 大众点评直连需已登录 Chrome + OpenCLI，且必须传数字 cityId（省略时 cityId=0 被重定向到首页）；哈尔滨 cityId=79，拼音是 haerbin 不是 harbin
+- OpenCLI v1.8.6 + Browser Bridge 扩展 v1.0.22 已验证可用（Windows）：`opencli dianping search/shop`、`opencli xiaohongshu search` 均实测通过
 - 小红书 search/notes API 需登录态，未登录时前端不调用该 API（2026-08-13 CDP 测试验证）
 - CDP 技术完全可行：成功拦截 66 个 API、获取 42 个响应体，唯一障碍是登录态
-- 连接已登录 Chrome（使用用户 user-data-dir）即可拦截 search/notes API
+- 连接已登录 Chrome（使用用户 user-data-dir）即可拦截 search/notes API；Windows 用 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` 解锁 opencli.ps1
 - search/recommend API 无需登录可用（返回搜索联想词）
 - Phase 2 完成后将所有 location 的 verified 设为 true
 - MEMORY.md 每次会话结束必须更新（强制）
