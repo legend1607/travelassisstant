@@ -1,93 +1,142 @@
-# 大众点评调研工作流 (OpenCLI)
+# 餐厅调研工作流（WebSearch + WebFetch 多源聚合）
 
-## 验证状态（2026-08-12）
+## 背景
 
-- **OpenCLI**: v1.8.6 已安装，daemon 运行正常（端口 19825）
-- **Browser Bridge 扩展**: 未连接（沙箱环境限制）
-- **页面可达性**: 未登录状态下访问 `dianping.com/search` 会被重定向至 `verify.meituan.com` 验证中心（拼图滑块）
-- **结论**: 必须使用已登录的 Chrome 浏览器 + OpenCLI Browser Bridge 扩展，headless 模式不可用
+v1.2.0 及之前使用 OpenCLI + Chrome CDP 直连大众点评，但需要已登录的浏览器会话。未登录状态下大众点评会重定向至 `verify.meituan.com` 验证中心（拼图滑块），无法获取数据。
 
-## 前提
+v1.3.0 改用 **WebSearch + WebFetch 多源聚合**方案，无需登录，在沙箱环境中验证通过。
 
-大众点评用于餐厅硬信号：口味、排队、踩雷、价格、区域和是否值得。小红书只补氛围、近期体验、拍照和软性提醒。
+## 数据源
 
-OpenCLI 已提供大众点评 browser adapter，目标站点是 `www.dianping.com`。
+| 数据源 | URL 模式 | 提供数据 | 优先级 |
+|--------|----------|----------|--------|
+| 携程美食 | `you.ctrip.com/food/{city}/{id}-dianping*.html` | 总评分+口味/环境/服务子分+人均+特色菜+用户点评 | 1（最高） |
+| 什么值得买 | `post.m.smzdm.com/p/{id}/` | 菜品分析+排队+价格+个人体验 | 2 |
+| 途牛 | `m.tuniu.com/restaurant/{id}/` | 用户评价+基本信息 | 3 |
+| 去哪儿 | `touch.go.qunar.com/poi/{id}` | 餐厅基本信息+简介 | 4 |
+| 马蜂窝 | `m.mafengwo.cn/gl/poi/comment.php?id={id}` | 用户评价 | 5 |
 
-## 环境要求
+**关键发现**：携程美食页面 URL 中包含 `dianping` 字样，其数据来源于大众点评。通过携程美食可以间接获取大众点评的评分和用户点评数据。
 
-- Chrome 已登录 `dianping.com`（未登录会被验证中心拦截）
-- 已安装 OpenCLI Browser Bridge 扩展
-- 优先使用 PC 站；移动站对非移动 UA 限制较多
+## 调研流程
 
-## 搜索餐厅
+### Step 1：WebSearch 搜索餐厅
 
-围绕当天主区域搜索，不搜泛词。
+对每个餐厅执行搜索：
 
-```bash
-opencli dianping search "银座 午餐" --city 东京 --limit 5 -f json
-opencli dianping search "有乐町 晚餐" --city 东京 --limit 5 -f json
-opencli dianping search "新宿 居酒屋" --city 东京 --limit 5 -f json
+```
+WebSearch: "{餐厅名} {城市} 评价 排队 好吃吗"
 ```
 
-命令格式：
+从搜索结果中识别高价值页面：
+- `you.ctrip.com/food/...` → 携程美食页（优先抓取）
+- `post.m.smzdm.com/p/...` → 什么值得买体验文（优先抓取）
+- `m.tuniu.com/restaurant/...` → 途牛餐厅页
+- `touch.go.qunar.com/poi/...` → 去哪儿餐厅页
 
-```bash
-opencli dianping search "<keyword>" --city <name-or-id> --limit <n> -f json
+### Step 2：WebFetch 抓取携程美食详情
+
+对搜索到的携程美食 URL 执行 WebFetch，获取：
+
+```json
+{
+  "name": "张飞扒肉·四代传承(道外店)",
+  "rating": 4.6,
+  "reviewCount": 123,
+  "taste": 4.6,
+  "environment": 4.4,
+  "service": 4.4,
+  "avgPrice": 53,
+  "cuisine": "东北菜",
+  "address": "道外区靖宇街道南大六道街210号",
+  "featuredDishes": ["张飞扒肉", "古法扒豆腐", "风味茄子", "苏伯汤", "扒肘子"],
+  "reviews": [
+    {
+      "user": "会飞的蚂蚁1",
+      "date": "2024-12-22",
+      "taste": 4, "environment": 4, "service": 4,
+      "avgPrice": 64,
+      "text": "按着导航找到这里，估计生意太好了，店员的脸蛋都不见笑容。扒肉可圈可点...",
+      "useful": 7
+    }
+  ]
+}
 ```
 
-`--city` 可用中文、拼音或大众点评 cityId；省略时使用当前 cookie 里的城市。
+### Step 3：WebFetch 抓取什么值得买体验文
 
-## 查看店铺详情
+对搜索到的什么值得买 URL 执行 WebFetch，获取：
 
-搜索结果里的 `shop_id` 可以继续查详情。
+- 菜品逐一分析（味道、口感、推荐度）
+- 排队情况（"小桌需排队"）
+- 价格明细（"单人点小份约九十二元"）
+- 个人体验感受
+- 适合场景（多人聚餐/单人/情侣）
 
-```bash
-opencli dianping shop <shop_id> -f json
-opencli dianping detail <shop_id> -f json
-```
+### Step 4：信号合并
 
-也可以传完整店铺 URL：
+| 数据类型 | 来源 | 判断标准 |
+|----------|------|----------|
+| 基础评分 | 携程美食 | 总分≥4.5为优，4.0-4.5为良，<4.0需谨慎 |
+| 口味 | 携程子分 | ≥4.5为优 |
+| 排队风险 | 什么值得买+点评 | "需排队"=中等风险，"排队30min+"=高风险 |
+| 性价比 | 人均+用户反馈 | 对比预算范围判断 |
+| 踩雷信号 | 差评+体验文 | 关注"太油"、"服务差"、"等待长"等关键词 |
+| 评价可信度 | 点评分布 | 好评/差评比、点评时间跨度、账号活跃度 |
 
-```bash
-opencli dianping shop "https://www.dianping.com/shop/<shop_id>"
-```
+### Step 5：刷好评识别
 
-## 判断标准
+从携程用户点评中识别：
 
-优先看：
+**可疑信号**：
+- 多条点评日期集中（同一周内大量好评）
+- 文案雷同（模板化表达）
+- 只评满分无细节（"好吃"、"不错"而无具体描述）
+- 新账号集中好评
 
-- `rating`：基础稳定性
-- `reviews`：评价量，太少说明信号弱
-- `price`：是否符合预算
-- `cuisine`：是否适合当前这顿饭
-- `district`：是否落在当天区域
-- 评价关键词：排队、踩雷、服务、游客店、性价比、是否值得专门去
+**可信信号**：
+- 点评跨度长（几个月甚至几年内持续有评价）
+- 有具体菜品/排队/价格细节
+- 有差评存在（说明未过滤负面反馈）
+- 老账号点评（有历史点评记录）
 
-不要为了高分店扭曲路线。餐厅默认是当天区域里的补给点，只有预约餐、强目的餐、用户明确指定的店，才允许成为路线锚点。
+在 route-schema.json 中标注 `dianping.reviewCredibility`：
+- `high` — 点评跨度长、有细节、有差评
+- `medium` — 正常分布
+- `low-suspect` — 集中好评、文案雷同、无差评
 
 ## 写回格式
 
-每顿饭只保留 2-3 个候选。
+每顿饭只保留 2-3 个候选，写回 route-schema.json：
 
-```md
-午餐区域：银座 / 有乐町
-主推：店名 A
-- 大众点评：评分稳定，评价量够，适合午餐，不需要专门绕路
-- 小红书：近期反馈氛围好，拍照友好
-
-备选：店名 B
-- 大众点评：离地铁近，排队风险低
-- 小红书：更像工作日简餐
+```json
+{
+  "name": "张飞扒肉",
+  "type": "food",
+  "verified": true,
+  "amap": {
+    "rating": 4.5,
+    "tel": "0451-xxxxxxx",
+    "openHours": "10:30-21:00"
+  },
+  "dianping": {
+    "taste": 4.6,
+    "environment": 4.4,
+    "service": 4.4,
+    "avgPrice": 53,
+    "reviewCount": 123,
+    "featuredDishes": ["张飞扒肉", "风味茄子", "苏伯汤"],
+    "verdict": "老字号扒肉，瘦肉不柴肥肉不腻，风味茄子和火爆腰花是隐藏必点",
+    "queueRisk": "medium",
+    "reviewCredibility": "high"
+  }
+}
 ```
 
 ## 常见坑
 
-- 只按评分选店，不看它是否在当天区域
-- 为了一家店反向规划半天路线
-- 把小红书种草当成餐厅硬口碑
-- 忽略排队、预约和营业时间
-- 搜索词太泛，得到一堆游客店
-
-## 官方参考
-
-- https://github.com/jackwener/OpenCLI/blob/main/docs/adapters/browser/dianping.md
+- 不要只看总分，要看口味子分和差评内容
+- 什么值得买的体验文比携程点评更详细，但样本量小
+- 节假日排队时间可能翻倍，用户点评中的排队信息要结合季节判断
+- 携程美食的数据可能不是最新的，注意点评日期
+- 人均消费受点菜影响大，取中位数而非平均值
