@@ -20,6 +20,44 @@
             "seniors": { "type": "integer" }
           }
         },
+        "transport": {
+          "type": "object",
+          "description": "跨城交通信息",
+          "properties": {
+            "outbound": {
+              "type": "object",
+              "properties": {
+                "type": { "type": "string", "enum": ["train", "flight", "bus", "car"] },
+                "number": { "type": "string", "description": "车次号或航班号" },
+                "from": { "type": "string" },
+                "to": { "type": "string" },
+                "departTime": { "type": "string" },
+                "arriveTime": { "type": "string" },
+                "duration": { "type": "string" },
+                "price": { "type": "number" },
+                "seatClass": { "type": "string" },
+                "availability": { "type": "string" },
+                "bookingUrl": { "type": "string" }
+              }
+            },
+            "return": {
+              "type": "object",
+              "properties": {
+                "type": { "type": "string", "enum": ["train", "flight", "bus", "car"] },
+                "number": { "type": "string" },
+                "from": { "type": "string" },
+                "to": { "type": "string" },
+                "departTime": { "type": "string" },
+                "arriveTime": { "type": "string" },
+                "duration": { "type": "string" },
+                "price": { "type": "number" },
+                "seatClass": { "type": "string" },
+                "availability": { "type": "string" },
+                "bookingUrl": { "type": "string" }
+              }
+            }
+          }
+        },
         "hotel": {
           "type": "object",
           "properties": {
@@ -82,7 +120,7 @@
                     "wechat": { "type": "number", "enum": [0, 0.5, 1] }
                   }
                 },
-                "xhs": { "type": "string", "description": "小红书链接" },
+                "xhs": { "type": "string", "description": "小红书/旅拍链接" },
                 "reserve": { "type": "string", "description": "预约链接" },
                 "verified": { "type": "boolean", "default": false, "description": "Phase 2 是否已调研验证" },
                 "amap": {
