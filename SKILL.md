@@ -1,12 +1,12 @@
 ---
 name: travel-assistant
 description: >
-  四阶段旅行助手：规划行程（交通查询+AMap 地理编码+路径规划验证）→ 调研餐厅景点（WebSearch 多源聚合 / CDP API 拦截+AMap POI）→
-  构建交互式地图页面（AMap JSAPI 3D）→ 生成路线图图片（AI 生图，可选）。
+  四阶段旅行助手：规划行程（交通查询+AMap 地理编码+REST API 路线验证+多版本方案）→ 调研餐厅景点（WebSearch 多源聚合 / CDP API 拦截+AMap POI）→
+  构建交互式地图页面（AMap JSAPI 3D + 移动端独立 HTML + 多方案对比）→ 生成路线图图片（AI 生图，可选）。
   使用高德地图 JSAPI v2.0 作为唯一地图引擎，面向国内旅行场景。
-  触发词："做个行程"、"行程规划"、"行程地图"、"trip map"、"plan my trip"、"帮我画路线图"、"生成行程封面"。
+  触发词：“做个行程”、“行程规划”、“行程地图”、“trip map”、“plan my trip”、“帮我画路线图”、“生成行程封面”、“多版本方案”。
 license: MIT
-version: 1.3.2
+version: 1.5.0
 homepage: https://github.com/legend1607/travelassisstant
 metadata:
   openclaw:
@@ -26,9 +26,9 @@ metadata:
 每次执行**必须**按顺序确认：
 
 - [ ] **START**：读取 `~/.travel-assistant/MEMORY.md`（不存在则跳过，不阻塞）
-- [ ] **Phase 1**：交通查询（火车/飞机）+ AMap 验证 + 输出 route-schema.json
+- [ ] **Phase 1**：交通查询（火车/飞机）+ AMap 验证 + REST API 路线验证 + 输出 route-schema.json
 - [ ] **Phase 2**：执行多源调研（路径 A 或 B）+ AMap POI，填充 verified: true
-- [ ] **Phase 3**：生成交互式地图 index.html
+- [ ] **Phase 3**：生成交互式地图 index.html；**如有多版本方案**，额外生成 `mobile/overview.html` + `mobile/plan-{id}.html`
 - [ ] **Phase 4**：（可选）用户明确要求才触发
 - [ ] **END**：创建/更新 `~/.travel-assistant/MEMORY.md`
 
@@ -78,10 +78,15 @@ route-schema.json 中每个 location 应包含 `verified` 字段：
 - `true` — Phase 2 已调研，amap/dianping/xhs 字段已填充
 - `false` — Phase 2 未执行或该点未调研，数据基于通用知识
 
+### 多版本方案数据结构
+
+当存在多条可行路线时，route-schema.json 的顶层增加 `plans` 数组，每个元素是一个独立方案（含 id/name/color/stat/cost_per_person/days）。读取 `references/multi-plan.md` 获取完整方法论。
+
 ## Phase 1: Plan — 交通查询 + 行程规划 + AMap 验证
 
 读取 `references/trip-planning.md` 获取完整方法论。
 读取 `references/transport-query.md` 获取交通查询详细工作流。
+读取 `references/amap-services.md` 获取 REST API 路线验证方法。
 
 ### 前置收集
 
@@ -94,12 +99,32 @@ route-schema.json 中每个 location 应包含 `verified` 字段：
 3. **愿望清单分组** — 城内轻松/需预约/远郊/可路过
 4. **删高风险点** — 天数不够、节假日拥挤、天气敏感
 5. **AMap 地理编码** — `AMap.Geocoder.getLocation(address)` → 坐标 [lng, lat]
-6. **AMap 路径规划验证** — 根据交通方式调用 Driving/Transfer/Walking
+6. **AMap 路径规划验证** — REST API `direction/driving` 验证距离/时长/过路费；JSAPI Driving 备选
 7. **AMap 行政区查询** — `AMap.DistrictSearch` 辅助按区域分组
 8. **按区域重组** — 一天一个主区域
 9. **补餐饮** — 按当天区域给候选
 10. **补票务交通** — 只查关键的
-11. **输出** — 参考文档 + `route-schema.json`
+11. **多版本判断** — 如存在互斥分支或交通组合，生成 2-4 个版本
+12. **输出** — 参考文档 + `route-schema.json`（含 `plans` 数组）
+
+### 路线验证（HARD RULE）
+
+每段驾驶路线**必须**通过高德 REST API 验证，不使用估算值。验证结果写入 `drives` 数组，包含 `time`、`dist`、`toll` 三个字段。
+
+REST API 需「Web 服务」型 Key（`AMAP_REST_KEY`），与 JSAPI Key 不同。如报 `USERKEY_PLAT_NOMATCH`，说明 Key 类型不匹配。
+
+### 费用分摊模型
+
+多版本对比时，费用分为两类：
+
+- **均摊项**（按人数分摊）：租车、油费（~0.7 RMB/km）、过路费、住宿、餐饮
+- **个人项**（不均摊）：高铁票、机票
+
+```
+人均费用 = (均摊项总和 ÷ 人数) + 个人项费用
+```
+
+`stat` 字段中的费用摘要**必须**与 `cost_per_person` 字段一致。
 
 ### 关键原则
 
@@ -107,6 +132,7 @@ route-schema.json 中每个 location 应包含 `verified` 字段：
 - 一天一个主区域，一天只放一个重预约点
 - 行程越顺越好，不是越满越好
 - 用户交互遵循四拍格式：Re-ground → Simplify → Recommend → Options
+- 存在互斥路线时，并行生成多版本供用户选择
 
 ## Phase 2: Research — 多源调研（双轨）
 
@@ -156,12 +182,39 @@ route-schema.json 中每个 location 应包含 `verified` 字段：
 
 ## Phase 3: Build — AMap JSAPI 交互式地图
 
+### 单版本模式
+
 1. 复制 `assets/template.html` → `index.html`
 2. 复制 `assets/env.example.js` → `env.js`，填入高德 API Key 和安全密钥
 3. 填充 `HOTEL` 对象和 `DAYS` 数组（来自 route-schema.json）
 4. 每个 location 需要：name, lng/lat, type, time, desc; 可选：budget, pay, xhs, reserve, amap, verified
-5. 未验证 location (`verified: false`) 的卡片上显示"⚠ 未经调研验证"标签
+5. 未验证 location (`verified: false`) 的卡片上显示“⚠ 未经调研验证”标签
 6. 填充 `overviewContent()` 行程摘要 + 支付提示
+
+### 多版本模式
+
+当 Phase 1 产出了多个方案时，额外生成移动端独立 HTML：
+
+读取 `references/multi-plan.md` 获取完整方法论。
+
+1. 复制 `assets/mobile-template.html` → `mobile/plan-{id}.html`（每个方案一个）
+2. 生成 `mobile/overview.html`（四版总对比页）
+3. API 密钥**内嵌**在 HTML 中（不依赖外部 env.js），单文件可在手机浏览器直接打开
+4. 使用 `str.replace("__PLACEHOLDER__", value)` 填充模板，**不用** f-string（JS 花括号冲突）
+5. overview.html 中“查看详情”链接的 onclick **必须**添加 `event.stopPropagation()` 防止冒泡
+6. 验证所有文件的 `stat` 与 `cost_per_person` 一致性
+
+### 事件隔离（HARD RULE）
+
+当可点击的父元素（如 `.plan-card onclick=showPlanOnMap()`）内嵌套了 `<a>` 链接时，链接的 `onclick` **必须**添加：
+
+```javascript
+event.stopPropagation();
+event.preventDefault();
+window.location.href = 'target.html';
+```
+
+否则点击链接会冒泡触发父元素的 onclick，导致无法跳转。
 
 ### 部署
 
@@ -177,6 +230,9 @@ gh api repos/:owner/:repo/pages -X POST -f "source[branch]=main" -f "source[path
 python3 -m http.server 8080
 ```
 
+**移动端独立文件（无需服务器）**：
+`mobile/plan-*.html` 和 `mobile/overview.html` 内嵌 API 密钥，可通过 AirDrop / 文件传输直接在手机浏览器打开。
+
 ## Phase 4: Visualize — AI 生图（可选）
 
 读取 `references/route-visualization.md` 和 `references/style-presets.md`。
@@ -186,6 +242,7 @@ python3 -m http.server 8080
 | 工具 | 用途 | 验证状态 |
 |------|------|----------|
 | AMap JSAPI v2.0 | 地图渲染 + 地理服务 | ✅ 已验证 |
+| AMap REST API | 驾车路线验证（距离/时长/过路费） | ✅ 已验证（需 Web 服务型 Key） |
 | WebSearch | 餐厅/景点/交通搜索 | ✅ 已验证 |
 | WebFetch | 详情页/车次/航班抓取 | ✅ 已验证 |
 | OpenCLI v1.8.6 | 大众点评 + 小红书直连（路径 B） | ✅ 已验证（需已登录 Chrome + Browser Bridge 扩展） |
@@ -196,11 +253,13 @@ python3 -m http.server 8080
 
 - `references/trip-planning.md` — 行程规划方法论
 - `references/transport-query.md` — 交通查询工作流
+- `references/multi-plan.md` — 多版本方案生成方法论（路线验证/费用分摊/移动端模板/事件隔离）
 - `references/dianping-research.md` — 多源餐厅调研工作流
 - `references/xhs-research.md` — 双轨体验调研工作流（WebSearch + CDP）
-- `references/amap-services.md` — 高德服务集成指南
+- `references/amap-services.md` — 高德服务集成指南（含 REST API 路线验证）
 - `references/route-visualization.md` — 路线图生成方法论
 - `references/style-presets.md` — 视觉风格预设
-- `assets/template.html` — AMap JSAPI HTML 地图模板
+- `assets/template.html` — AMap JSAPI HTML 地图模板（桌面端，依赖 env.js）
+- `assets/mobile-template.html` — 移动端独立行程模板（内嵌密钥，单文件）
 - `assets/env.example.js` — AMap Key 配置模板
 - `shared/route-schema.json` — 统一行程数据格式
