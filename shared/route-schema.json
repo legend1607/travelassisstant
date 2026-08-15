@@ -1,179 +1,578 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Travel Assistant Route Schema",
-  "description": "统一行程数据格式，Phase 1 产出，Phase 3 和 Phase 4 共用",
+  "title": "国庆吉林本溪6日行程",
+  "description": "2026国庆 本溪赏枫+长白山天池 6日行程",
   "type": "object",
   "required": ["trip", "days"],
   "properties": {
+    "plans": {
+      "type": "array",
+      "description": "多版本方案数组（v1.5.0+）。存在互斥分支或交通组合时生成 2-4 个版本。单版本模式不需要此字段。",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "color", "stat", "transport", "cost_per_person", "days"],
+        "properties": {
+          "id": { "type": "string", "description": "字母编号：A, B, C, D" },
+          "name": { "type": "string", "description": "完整名称：A·全程自驾·北坡版" },
+          "color": { "type": "string", "description": "主题色 #ff3b30" },
+          "icon": { "type": "string", "description": "Emoji 图标 🍁" },
+          "stat": { "type": "string", "description": "里程/时长/过路费摘要。费用必须与 cost_per_person 一致" },
+          "transport": { "type": "string", "description": "全程自驾 / 混合（自驾+高铁+包车）" },
+          "desc": { "type": "string", "description": "一句话描述亮点和取舍" },
+          "cost_per_person": { "type": "string", "description": "人均费用 ~¥2900/人" },
+          "days": {
+            "type": "array",
+            "description": "每日行程（同 days 格式，增加 drives/transits 数组）",
+            "items": {
+              "type": "object",
+              "properties": {
+                "day": { "type": "integer" },
+                "label": { "type": "string", "description": "D1·四方顶" },
+                "color": { "type": "string" },
+                "area": { "type": "string", "description": "长春→露水河" },
+                "transport": { "type": "string", "enum": ["drive", "hsr", "charter"], "description": "drive=自驾 hsr=高铁 charter=包车" },
+                "locations": { "type": "array", "items": { "type": "object" } },
+                "drives": {
+                  "type": "array",
+                  "description": "驾驶路段（REST API 验证结果）",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": { "type": "string", "description": "长春→四方顶" },
+                      "time": { "type": "string", "description": "2h3m" },
+                      "dist": { "type": "string", "description": "209km" },
+                      "toll": { "type": "string", "description": "¥89" }
+                    }
+                  }
+                },
+                "transits": {
+                  "type": "array",
+                  "description": "高铁/包车路段",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": { "type": "string" },
+                      "time": { "type": "string" },
+                      "cost": { "type": "string" },
+                      "type": { "type": "string", "enum": ["hsr", "taxi", "charter"] }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "trip": {
       "type": "object",
       "required": ["title", "days"],
       "properties": {
-        "title": { "type": "string", "description": "行程标题" },
-        "days": { "type": "integer", "description": "总天数" },
-        "startDate": { "type": "string", "description": "开始日期 YYYY-MM-DD" },
+        "title": { "type": "string", "description": "国庆吉林本溪6日·枫叶天池自驾之旅" },
+        "days": { "type": "integer", "description": 6 },
+        "startDate": { "type": "string", "description": "2026-10-01" },
         "travelers": {
           "type": "object",
           "properties": {
-            "adults": { "type": "integer" },
-            "children": { "type": "integer" },
-            "seniors": { "type": "integer" }
+            "adults": { "type": "integer", "description": 3 },
+            "children": { "type": "integer", "description": 0 },
+            "seniors": { "type": "integer", "description": 0 }
           }
         },
         "transport": {
           "type": "object",
-          "description": "跨城交通信息",
+          "description": "跨城交通信息（三人出发地不同）",
           "properties": {
             "outbound": {
               "type": "object",
+              "description": "去程交通方案",
               "properties": {
-                "type": { "type": "string", "enum": ["train", "flight", "bus", "car"] },
-                "number": { "type": "string", "description": "车次号或航班号" },
-                "from": { "type": "string" },
-                "to": { "type": "string" },
-                "departTime": { "type": "string" },
-                "arriveTime": { "type": "string" },
-                "duration": { "type": "string" },
-                "price": { "type": "number" },
-                "seatClass": { "type": "string" },
-                "availability": { "type": "string" },
-                "bookingUrl": { "type": "string" }
+                "routes": {
+                  "type": "array",
+                  "description": "三条出发路线",
+                  "items": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "traveler": { "type": "string", "description": "大连出发" },
+                        "type": { "type": "string", "enum": ["train"] },
+                        "number": { "type": "string", "description": "G8039" },
+                        "from": { "type": "string", "description": "大连北" },
+                        "to": { "type": "string", "description": "本溪" },
+                        "departTime": { "type": "string", "description": "06:35" },
+                        "arriveTime": { "type": "string", "description": "09:14" },
+                        "duration": { "type": "string", "description": "2时39分" },
+                        "price": { "type": "number", "description": 154 },
+                        "seatClass": { "type": "string", "description": "二等座" },
+                        "bookingUrl": { "type": "string", "description": "https://trains.ctrip.com/trainbooking/dalian-benxi/" }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "traveler": { "type": "string", "description": "北京出发" },
+                        "type": { "type": "string", "enum": ["train"] },
+                        "number": { "type": "string", "description": "G177" },
+                        "from": { "type": "string", "description": "北京朝阳" },
+                        "to": { "type": "string", "description": "本溪" },
+                        "departTime": { "type": "string", "description": "08:50" },
+                        "arriveTime": { "type": "string", "description": "11:53" },
+                        "duration": { "type": "string", "description": "3时03分" },
+                        "price": { "type": "number", "description": 397 },
+                        "seatClass": { "type": "string", "description": "二等座" },
+                        "bookingUrl": { "type": "string", "description": "https://trains.ctrip.com/trainbooking/beijing-benxi/" }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "traveler": { "type": "string", "description": "太原出发" },
+                        "type": { "type": "string", "enum": ["flight", "train"] },
+                        "description": { "type": "string", "description": "太原武宿→沈阳桃仙(直飞约2h, ¥800+) + 沈阳→本溪高铁(25min, ¥25)" },
+                        "from": { "type": "string", "description": "太原武宿(TYN)" },
+                        "to": { "type": "string", "description": "本溪" },
+                        "departTime": { "type": "string", "description": "14:50" },
+                        "arriveTime": { "type": "string", "description": "约18:00" },
+                        "duration": { "type": "string", "description": "约3h(含转乘)" },
+                        "price": { "type": "number", "description": 825 },
+                        "bookingUrl": { "type": "string", "description": "https://m.ctrip.com/html5/flight/TYN.SHE.html" }
+                      }
+                    }
+                  ]
+                }
               }
             },
             "return": {
               "type": "object",
+              "description": "返程交通方案（Day6从本溪/沈阳各自返程）",
               "properties": {
-                "type": { "type": "string", "enum": ["train", "flight", "bus", "car"] },
-                "number": { "type": "string" },
-                "from": { "type": "string" },
-                "to": { "type": "string" },
-                "departTime": { "type": "string" },
-                "arriveTime": { "type": "string" },
-                "duration": { "type": "string" },
-                "price": { "type": "number" },
-                "seatClass": { "type": "string" },
-                "availability": { "type": "string" },
-                "bookingUrl": { "type": "string" }
+                "routes": {
+                  "type": "array",
+                  "items": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "traveler": { "type": "string", "description": "大连返程" },
+                        "type": { "type": "string", "enum": ["train"] },
+                        "from": { "type": "string", "description": "本溪" },
+                        "to": { "type": "string", "description": "大连北" },
+                        "duration": { "type": "string", "description": "约3h" },
+                        "price": { "type": "number", "description": 154 }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "traveler": { "type": "string", "description": "北京返程" },
+                        "type": { "type": "string", "enum": ["train"] },
+                        "from": { "type": "string", "description": "本溪" },
+                        "to": { "type": "string", "description": "北京朝阳" },
+                        "duration": { "type": "string", "description": "约3h" },
+                        "price": { "type": "number", "description": 397 }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "traveler": { "type": "string", "description": "太原返程" },
+                        "type": { "type": "string", "enum": ["train", "flight"] },
+                        "description": { "type": "string", "description": "本溪→沈阳高铁(25min) + 沈阳桃仙→太原武宿(直飞约2h)" },
+                        "price": { "type": "number", "description": 825 }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "driving": {
+              "type": "object",
+              "description": "自驾段（本溪→长白山往返）",
+              "properties": {
+                "rentalLocation": { "type": "string", "description": "本溪/沈阳取车" },
+                "estimatedCost": { "type": "number", "description": 2200 },
+                "costBreakdown": { "type": "string", "description": "租车¥300/天×5天 + 油费过路费约¥700" },
+                "totalDistance": { "type": "string", "description": "约1200km" }
               }
             }
-          }
-        },
-        "hotel": {
-          "type": "object",
-          "properties": {
-            "name": { "type": "string" },
-            "lng": { "type": "number" },
-            "lat": { "type": "number" },
-            "address": { "type": "string" }
-          }
-        },
-        "budget": {
-          "type": "object",
-          "properties": {
-            "transport": { "type": "number" },
-            "accommodation": { "type": "number" },
-            "food": { "type": "number" },
-            "tickets": { "type": "number" },
-            "local_transport": { "type": "number" },
-            "total": { "type": "number" }
           }
         }
       }
     },
     "days": {
       "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["day", "label", "area", "locations"],
-        "properties": {
-          "day": { "type": "integer" },
-          "label": { "type": "string", "description": "如 D1 · 道里区" },
-          "date": { "type": "string" },
-          "area": { "type": "string", "description": "当天主区域" },
-          "color": { "type": "string", "description": "当天标记颜色" },
-          "weather": {
-            "type": "object",
-            "properties": {
-              "condition": { "type": "string" },
-              "temp": { "type": "string" }
-            }
-          },
-          "locations": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": ["name", "type", "lng", "lat", "time"],
-              "properties": {
-                "name": { "type": "string" },
-                "type": { "type": "string", "enum": ["food", "spot", "drink", "hotel", "transport"] },
-                "lng": { "type": "number" },
-                "lat": { "type": "number" },
-                "time": { "type": "string", "description": "HH:MM 或 —" },
-                "desc": { "type": "string" },
-                "budget": { "type": "string" },
-                "pay": {
+      "description": "6日行程",
+      "items": [
+        {
+          "type": "object",
+          "description": "Day 1: 各地→本溪集合+本溪水洞",
+          "properties": {
+            "day": { "type": "integer", "description": 1 },
+            "date": { "type": "string", "description": "2026-10-01" },
+            "area": { "type": "string", "description": "本溪市区" },
+            "locations": {
+              "type": "array",
+              "items": [
+                {
                   "type": "object",
                   "properties": {
-                    "cash": { "type": "number", "enum": [0, 0.5, 1] },
-                    "card": { "type": "number", "enum": [0, 0.5, 1] },
-                    "alipay": { "type": "number", "enum": [0, 0.5, 1] },
-                    "wechat": { "type": "number", "enum": [0, 0.5, 1] }
+                    "name": { "type": "string", "description": "本溪站" },
+                    "type": { "type": "string", "description": "transport" },
+                    "lng": { "type": "number", "description": 123.765 },
+                    "lat": { "type": "number", "description": 41.298 },
+                    "time": { "type": "string", "description": "09:14-12:00" },
+                    "desc": { "type": "string", "description": "三人陆续抵达本溪站，集合后前往酒店放行李" },
+                    "verified": { "type": "boolean", "description": true }
                   }
                 },
-                "xhs": { "type": "string", "description": "小红书/旅拍链接" },
-                "reserve": { "type": "string", "description": "预约链接" },
-                "verified": { "type": "boolean", "default": false, "description": "Phase 2 是否已调研验证" },
-                "amap": {
+                {
                   "type": "object",
                   "properties": {
-                    "rating": { "type": "number" },
-                    "tel": { "type": "string" },
-                    "openHours": { "type": "string" }
+                    "name": { "type": "string", "description": "本溪水洞" },
+                    "type": { "type": "string", "description": "spot" },
+                    "lng": { "type": "number", "description": 124.097 },
+                    "lat": { "type": "number", "description": 41.314 },
+                    "time": { "type": "string", "description": "13:30-17:00" },
+                    "desc": { "type": "string", "description": "世界最长地下充水溶洞，乘船游览地下暗河，洞内恒温12°C需带厚外套" },
+                    "budget": { "type": "string", "description": "门票¥110/人（含游船）" },
+                    "reserve": { "type": "string", "description": "建议提前在携程/美团购票" },
+                    "amap": { "type": "object", "properties": { "rating": { "type": "number", "description": 4.6 }, "tel": { "type": "string", "description": "024-44891162" }, "openHours": { "type": "string", "description": "8:30-17:00" } } },
+                    "verified": { "type": "boolean", "description": true }
                   }
                 },
-                "dianping": {
+                {
                   "type": "object",
                   "properties": {
-                    "taste": { "type": "number" },
-                    "queue": { "type": "string" },
-                    "verdict": { "type": "string" },
-                    "reviewCredibility": { "type": "string", "enum": ["high", "medium", "low-suspect"] }
+                    "name": { "type": "string", "description": "小小羊汤馆" },
+                    "type": { "type": "string", "description": "food" },
+                    "lng": { "type": "number", "description": 123.770 },
+                    "lat": { "type": "number", "description": 41.295 },
+                    "time": { "type": "string", "description": "18:00" },
+                    "desc": { "type": "string", "description": "小市镇非遗羊汤标杆，20年老店，羊汤浓白鲜香，推荐炸羊排、红蘑土豆片" },
+                    "budget": { "type": "string", "description": "人均¥60-80" },
+                    "verified": { "type": "boolean", "description": true }
                   }
                 },
-                "xhsData": {
+                {
                   "type": "object",
                   "properties": {
-                    "link": { "type": "string" },
-                    "verdict": { "type": "string" },
-                    "negativeRatio": { "type": "number" },
-                    "negativeImpact": { "type": "string", "enum": ["low", "medium", "high"] },
-                    "promotionalPostsDetected": { "type": "integer" }
+                    "name": { "type": "string", "description": "枫悦来温泉民宿(本溪水洞店)" },
+                    "type": { "type": "string", "description": "hotel" },
+                    "lng": { "type": "number", "description": 124.090 },
+                    "lat": { "type": "number", "description": 41.310 },
+                    "time": { "type": "string", "description": "—" },
+                    "desc": { "type": "string", "description": "近本溪水洞，4.9分，室内温泉，停车方便" },
+                    "budget": { "type": "string", "description": "约¥300-400/晚" },
+                    "verified": { "type": "boolean", "description": true }
                   }
                 }
-              }
+              ]
             }
-          },
-          "route": {
-            "type": "object",
-            "properties": {
-              "segments": {
-                "type": "array",
-                "items": {
+          }
+        },
+        {
+          "type": "object",
+          "description": "Day 2: 关门山+老边沟赏枫",
+          "properties": {
+            "day": { "type": "integer", "description": 2 },
+            "date": { "type": "string", "description": "2026-10-02" },
+            "area": { "type": "string", "description": "本溪县赏枫区" },
+            "locations": {
+              "type": "array",
+              "items": [
+                {
                   "type": "object",
                   "properties": {
-                    "from": { "type": "string" },
-                    "to": { "type": "string" },
-                    "to2": { "type": "string" },
-                    "mode": { "type": "string", "enum": ["driving", "transit", "walking"] },
-                    "duration": { "type": "number", "description": "分钟" },
-                    "distance": { "type": "number", "description": "公里" }
+                    "name": { "type": "string", "description": "关门山国家森林公园" },
+                    "type": { "type": "string", "description": "spot" },
+                    "lng": { "type": "number", "description": 124.046 },
+                    "lat": { "type": "number", "description": 41.251 },
+                    "time": { "type": "string", "description": "07:00-12:00" },
+                    "desc": { "type": "string", "description": "东北小黄山，国庆赏枫核心景点，漫山红遍层林尽染，建议早入园避人流" },
+                    "budget": { "type": "string", "description": "门票¥75/人，缆车¥90+¥80" },
+                    "amap": { "type": "object", "properties": { "rating": { "type": "number", "description": 4.5 }, "tel": { "type": "string", "description": "0414-6358031" }, "openHours": { "type": "string", "description": "06:00-17:30" } } },
+                    "verified": { "type": "boolean", "description": true }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "满乡羊汤馆" },
+                    "type": { "type": "string", "description": "food" },
+                    "lng": { "type": "number", "description": 123.768 },
+                    "lat": { "type": "number", "description": 41.293 },
+                    "time": { "type": "string", "description": "12:30" },
+                    "desc": { "type": "string", "description": "小市镇过境路，人均¥62，推荐羊汤、扒羊脸、榛蘑土豆片" },
+                    "budget": { "type": "string", "description": "人均¥60" },
+                    "verified": { "type": "boolean", "description": true }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "老边沟" },
+                    "type": { "type": "string", "description": "spot" },
+                    "lng": { "type": "number", "description": 124.292 },
+                    "lat": { "type": "number", "description": 41.255 },
+                    "time": { "type": "string", "description": "14:00-17:00" },
+                    "desc": { "type": "string", "description": "中国枫叶之都核心区，油画山谷，距关门山约30-40分钟车程，溪谷红叶绝美" },
+                    "budget": { "type": "string", "description": "门票约¥60/人" },
+                    "amap": { "type": "object", "properties": { "openHours": { "type": "string", "description": "07:30-17:00" } } },
+                    "verified": { "type": "boolean", "description": true }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "枫悦来温泉民宿(本溪水洞店)" },
+                    "type": { "type": "string", "description": "hotel" },
+                    "lng": { "type": "number", "description": 124.090 },
+                    "lat": { "type": "number", "description": 41.310 },
+                    "time": { "type": "string", "description": "—" },
+                    "desc": { "type": "string", "description": "同Day1住宿，泡温泉缓解疲劳" },
+                    "verified": { "type": "boolean", "description": true }
                   }
                 }
-              }
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "description": "Day 3: 中华枫叶之路→自驾向长白山",
+          "properties": {
+            "day": { "type": "integer", "description": 3 },
+            "date": { "type": "string", "description": "2026-10-03" },
+            "area": { "type": "string", "description": "本桓公路→二道白河" },
+            "locations": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "洋湖沟·中华枫叶大道" },
+                    "type": { "type": "string", "description": "spot" },
+                    "lng": { "type": "number", "description": 124.115 },
+                    "lat": { "type": "number", "description": 41.382 },
+                    "time": { "type": "string", "description": "08:00-11:00" },
+                    "desc": { "type": "string", "description": "本桓公路精华段，中国最美秋色公路，沿路自驾赏枫，洋湖沟为最佳摄影点" },
+                    "budget": { "type": "string", "description": "免费" },
+                    "verified": { "type": "boolean", "description": true }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "自驾前往二道白河镇" },
+                    "type": { "type": "string", "description": "transport" },
+                    "lng": { "type": "number", "description": 126.500 },
+                    "lat": { "type": "number", "description": 42.000 },
+                    "time": { "type": "string", "description": "11:00-17:30" },
+                    "desc": { "type": "string", "description": "沿鹤大高速行驶约477km，约6小时，途经济通化可休息" },
+                    "budget": { "type": "string", "description": "油费+过路费约¥350" },
+                    "verified": { "type": "boolean", "description": true }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "长白山璞悦温泉度假酒店" },
+                    "type": { "type": "string", "description": "hotel" },
+                    "lng": { "type": "number", "description": 128.092 },
+                    "lat": { "type": "number", "description": 42.428 },
+                    "time": { "type": "string", "description": "—" },
+                    "desc": { "type": "string", "description": "天池街9号，4.6分，五楼室外温泉，近美人松公园，距北坡集散中心15分钟" },
+                    "budget": { "type": "string", "description": "约¥500-800/晚" },
+                    "verified": { "type": "boolean", "description": true }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "description": "Day 4: 长白山北景区",
+          "properties": {
+            "day": { "type": "integer", "description": 4 },
+            "date": { "type": "string", "description": "2026-10-04" },
+            "area": { "type": "string", "description": "长白山北坡" },
+            "locations": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "长白山北坡集散中心" },
+                    "type": { "type": "string", "description": "spot" },
+                    "lng": { "type": "number", "description": 128.089 },
+                    "lat": { "type": "number", "description": 42.052 },
+                    "time": { "type": "string", "description": "07:00入园" },
+                    "desc": { "type": "string", "description": "必须提前7天在「长白山」微信公众号预约！每人每日仅限一个景区。检票时段07:00-14:30" },
+                    "budget": { "type": "string", "description": "门票+环保车+倒站车约¥270/人" },
+                    "reserve": { "type": "string", "description": "微信公众号「长白山」或小程序，提前7天18:00放票" },
+                    "amap": { "type": "object", "properties": { "openHours": { "type": "string", "description": "07:00-14:30(检票)" } } },
+                    "verified": { "type": "boolean", "description": true }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "长白山天池" },
+                    "type": { "type": "string", "description": "spot" },
+                    "lng": { "type": "number", "description": 128.055 },
+                    "lat": { "type": "number", "description": 42.003 },
+                    "time": { "type": "string", "description": "08:00-10:00" },
+                    "desc": { "type": "string", "description": "上午8-10点云雾最少看到概率最高！乘倒站车上主峰看火山口湖" },
+                    "verified": { "type": "boolean", "description": true }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "长白瀑布+聚龙温泉群" },
+                    "type": { "type": "string", "description": "spot" },
+                    "lng": { "type": "number", "description": 128.067 },
+                    "lat": { "type": "number", "description": 42.039 },
+                    "time": { "type": "string", "description": "10:30-12:00" },
+                    "desc": { "type": "string", "description": "长白瀑布落差68m，聚龙温泉群可煮温泉鸡蛋" },
+                    "budget": { "type": "string", "description": "温泉鸡蛋约¥10/个" },
+                    "verified": { "type": "boolean", "description": true }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "绿渊潭+小天池" },
+                    "type": { "type": "string", "description": "spot" },
+                    "lng": { "type": "number", "description": 128.078 },
+                    "lat": { "type": "number", "description": 42.055 },
+                    "time": { "type": "string", "description": "13:00-15:00" },
+                    "desc": { "type": "string", "description": "绿渊潭号称东北小九寨，碧水深潭配瀑布；地下森林16:00关闭需注意时间" },
+                    "verified": { "type": "boolean", "description": true }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "二道白河镇晚餐" },
+                    "type": { "type": "string", "description": "food" },
+                    "lng": { "type": "number", "description": 128.094 },
+                    "lat": { "type": "number", "description": 42.425 },
+                    "time": { "type": "string", "description": "17:30" },
+                    "desc": { "type": "string", "description": "镇上朝鲜族特色美食，推荐冷面、烤肉、石锅饭" },
+                    "budget": { "type": "string", "description": "人均¥80-120" },
+                    "verified": { "type": "boolean", "description": false }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "长白山璞悦温泉度假酒店" },
+                    "type": { "type": "string", "description": "hotel" },
+                    "lng": { "type": "number", "description": 128.092 },
+                    "lat": { "type": "number", "description": 42.428 },
+                    "time": { "type": "string", "description": "—" },
+                    "desc": { "type": "string", "description": "同Day3住宿，泡温泉缓解登山疲劳" },
+                    "verified": { "type": "boolean", "description": true }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "description": "Day 5: 长白山西景区+返程开始",
+          "properties": {
+            "day": { "type": "integer", "description": 5 },
+            "date": { "type": "string", "description": "2026-10-05" },
+            "area": { "type": "string", "description": "长白山西坡→通化" },
+            "locations": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "长白山西景区" },
+                    "type": { "type": "string", "description": "spot" },
+                    "lng": { "type": "number", "description": 127.620 },
+                    "lat": { "type": "number", "description": 42.032 },
+                    "time": { "type": "string", "description": "07:00-12:00" },
+                    "desc": { "type": "string", "description": "锦江大峡谷+高山花园，需另购票，距二道白河87km约1h车程。注意：每人每日仅限一个景区，Day4已去北坡则Day5可去西坡" },
+                    "budget": { "type": "string", "description": "门票+环保车约¥170/人" },
+                    "reserve": { "type": "string", "description": "微信公众号「长白山」提前7天预约" },
+                    "verified": { "type": "boolean", "description": true }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "自驾返程·通化方向" },
+                    "type": { "type": "string", "description": "transport" },
+                    "lng": { "type": "number", "description": 126.500 },
+                    "lat": { "type": "number", "description": 42.000 },
+                    "time": { "type": "string", "description": "13:00-18:00" },
+                    "desc": { "type": "string", "description": "从西景区出发驱车前往通化市，约300km约4小时，中途可赏沿途秋色" },
+                    "budget": { "type": "string", "description": "油费+过路费约¥200" },
+                    "verified": { "type": "boolean", "description": true }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "通化市住宿" },
+                    "type": { "type": "string", "description": "hotel" },
+                    "lng": { "type": "number", "description": 125.936 },
+                    "lat": { "type": "number", "description": 41.721 },
+                    "time": { "type": "string", "description": "—" },
+                    "desc": { "type": "string", "description": "中途休息站，通化葡萄酒产地，晚餐可尝当地烧烤" },
+                    "budget": { "type": "string", "description": "约¥200-300/晚" },
+                    "verified": { "type": "boolean", "description": false }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "description": "Day 6: 返程",
+          "properties": {
+            "day": { "type": "integer", "description": 6 },
+            "date": { "type": "string", "description": "2026-10-06" },
+            "area": { "type": "string", "description": "通化→本溪/沈阳→各地" },
+            "locations": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "通化→本溪(自驾还车)" },
+                    "type": { "type": "string", "description": "transport" },
+                    "lng": { "type": "number", "description": 124.500 },
+                    "lat": { "type": "number", "description": 41.500 },
+                    "time": { "type": "string", "description": "08:00-12:00" },
+                    "desc": { "type": "string", "description": "通化→本溪约250km约3.5h，抵达后还车，各自前往车站/机场" },
+                    "verified": { "type": "boolean", "description": true }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "description": "本溪站·各自返程" },
+                    "type": { "type": "string", "description": "transport" },
+                    "lng": { "type": "number", "description": 123.765 },
+                    "lat": { "type": "number", "description": 41.298 },
+                    "time": { "type": "string", "description": "13:00后" },
+                    "desc": { "type": "string", "description": "大连:高铁本溪→大连北(约3h,¥154) | 北京:高铁本溪→北京朝阳(约3h,¥397) | 太原:高铁本溪→沈阳(25min)+飞机沈阳→太原(约2h,¥800+)" },
+                    "verified": { "type": "boolean", "description": true }
+                  }
+                }
+              ]
             }
           }
         }
-      }
+      ]
     }
   }
 }
