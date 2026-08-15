@@ -11,12 +11,16 @@ build/
 .env
 .env.local
 .env.*.local
+env.js
 assets/env.js
 assets/env.local.js
 
 # Generated trip maps — Phase 3 产物
 index.html
 *.trip.html
+
+# Mobile standalone HTML — Phase 3 多版本产物（内嵌密钥，不提交）
+mobile/
 
 # Generated images — Phase 4 产物
 *.route-map.png

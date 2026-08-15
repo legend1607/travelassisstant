@@ -16,3 +16,7 @@ window._AMapSecurityConfig = {
 
 // 高德地图 Web 端开发者 Key
 window.AMAP_JSAPI_KEY = 'YOUR_AMAP_JSAPI_KEY';
+
+// 高德 Web 服务型 Key（v1.5.0+ REST API 路线验证用）
+// 注意：与 JSAPI Key 不同，需在控制台单独创建「Web 服务」型应用
+window.AMAP_REST_KEY = 'YOUR_AMAP_REST_KEY';
