@@ -239,8 +239,99 @@ function showDay(dayIndex) {
 map.destroy();
 ```
 
+## REST API 路线验证
+
+Phase 1 规划阶段，每段驾驶路线应通过高德 REST API 验证真实距离、时长和过路费，替代估算值。
+
+### 前置条件
+
+- 需要 **Web 服务型** API Key（`AMAP_REST_KEY`），与 JSAPI Key 不同
+- 如果 JSAPI Key 调用 REST API 报 `USERKEY_PLAT_NOMATCH`，说明 Key 类型不匹配
+
+### 驾车路线验证
+
+```bash
+# REST API - 驾车路径规划
+curl "https://restapi.amap.com/v3/direction/driving?origin=125.324,43.886&destination=126.22,42.35&key=YOUR_REST_KEY&strategy=2&extensions=all"
+```
+
+响应解析：
+
+```python
+import requests
+
+def verify_route(origin, destination, api_key):
+    """验证驾车路线，返回 (时长, 距离, 过路费)"""
+    url = "https://restapi.amap.com/v3/direction/driving"
+    params = {
+        "origin": f"{origin[0]},{origin[1]}",
+        "destination": f"{destination[0]},{destination[1]}",
+        "key": api_key,
+        "strategy": 2,       # 最短时间
+        "extensions": "all",  # 返回详细信息
+    }
+    resp = requests.get(url, params=params).json()
+    if resp["status"] != "1":
+        return None, None, None
+    route = resp["route"]["paths"][0]
+    duration_sec = int(route["duration"])
+    distance_m = int(route["distance"])
+    toll = int(route.get("tolls", 0))
+    # 转换为可读格式
+    hours = duration_sec // 3600
+    mins = (duration_sec % 3600) // 60
+    time_str = f"{hours}h{mins}m" if hours > 0 else f"{mins}m"
+    dist_str = f"{distance_m // 1000}km"
+    toll_str = f"¥{toll}" if toll > 0 else "¥0"
+    return time_str, dist_str, toll_str
+```
+
+### JSAPI 备选方案
+
+如果 REST API Key 不可用，可在浏览器中通过 JSAPI 的 Driving 服务验证：
+
+```javascript
+AMapLoader.load({
+  key: window.AMAP_JSAPI_KEY,
+  version: '2.0',
+  plugins: ['AMap.Driving']
+}).then((AMap) => {
+  const driving = new AMap.Driving({ policy: AMap.DrivingPolicy.LEAST_TIME });
+  driving.search([lng1, lat1], [lng2, lat2], (status, result) => {
+    if (status === 'complete') {
+      const route = result.routes[0];
+      const time = route.time;         // 秒
+      const distance = route.distance; // 米
+      // 注意：JSAPI Driving 不返回过路费，需 REST API
+    }
+  });
+});
+```
+
+### 验证结果写入
+
+验证后的路线数据写入方案 JSON 的 `drives` 数组：
+
+```json
+{
+  "name": "长春→四方顶",
+  "time": "2h3m",
+  "dist": "209km",
+  "toll": "¥89"
+}
+```
+
+### 常见错误
+
+| 错误码 | 含义 | 解决方案 |
+|--------|------|----------|
+| `USERKEY_PLAT_NOMATCH` | Key 类型不匹配 | REST API 需「Web 服务」型 Key，非「Web 端(JSAPI)」型 |
+| `INVALID_USER_KEY` | Key 无效 | 检查 Key 是否正确、是否过期 |
+| `OUT_OF_SERVICE` | 起点终点不在服务范围 | 检查坐标是否在中国境内 |
+
 ## 官方文档
 
 - [JSAPI v2.0 文档](https://lbs.amap.com/api/jsapi-v2/summary/)
 - [示例中心](https://lbs.amap.com/demo/list/jsapi-v2)
+- [REST API 文档](https://lbs.amap.com/api/webservice/guide/api/direction)
 - [控制台](https://console.amap.com/)
